@@ -1,0 +1,76 @@
+workflows:
+  ios-app-store:
+    name: SpeekZone iOS — App Store
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.speekzone.app
+      vars:
+        XCODE_WORKSPACE: ios/App/App.xcworkspace
+        XCODE_SCHEME: App
+        APP_STORE_APP_ID: 6740000000   # ← replace with your actual App Store app ID
+      node: 18.19.0
+      xcode: latest
+
+    scripts:
+      - name: Install dependencies
+        script: npm ci
+
+      - name: Build web app
+        script: npm run build
+
+      - name: Capacitor sync
+        script: |
+          npx cap add ios || true
+          npx cap sync ios
+
+      - name: Set iOS bundle version
+        script: |
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APP_ID" 2>/dev/null || echo "0")
+          agvtool new-version -all $(($LATEST_BUILD + 1))
+        working_directory: ios/App
+
+      - name: CocoaPods install
+        script: pod install
+        working_directory: ios/App
+
+      - name: Build and sign for App Store
+        script: |
+          xcode-project use-profiles
+          xcodebuild \
+            -workspace "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -archivePath /tmp/SpeekZone.xcarchive \
+            clean archive \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM=$(keychain list-certificates | grep "Apple Distribution" | awk '{print $NF}' | head -1) \
+            OTHER_CODE_SIGN_FLAGS="--keychain /tmp/temporary.keychain"
+
+          xcodebuild -exportArchive \
+            -archivePath /tmp/SpeekZone.xcarchive \
+            -exportPath /tmp/SpeekZone.ipa \
+            -exportOptionsPlist /tmp/exportOptions.plist
+
+      - name: Publish to App Store Connect
+        script: |
+          app-store-connect publish \
+            --path /tmp/SpeekZone.ipa/*.ipa \
+            --apple-id hoodstarent365@gmail.com
+
+    artifacts:
+      - /tmp/SpeekZone.ipa/*.ipa
+      - /tmp/SpeekZone.xcarchive/**/*
+
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: d2aeeca9-68b4-480e-96e0-edced6996d56
+        submit_to_testflight: true
+        submit_to_app_store: false   # set true when ready for full release
+        beta_groups:
+          - External Testers

@@ -56,9 +56,9 @@ workflows:
         script: |
           app-store-connect publish \
             --path /tmp/SpeekZone.ipa/*.ipa \
-            --key-id W9AY8PF52H \
+            --key-id AC7T7RNVVR \
             --issuer-id d2aeeca9-68b4-480e-96e0-edced6996d56 \
-            --private-key @file:$CM_BUILD_DIR/AuthKey_W9AY8PF52H.p8
+            --private-key @file:$CM_BUILD_DIR/AuthKey_AC7T7RNVVR.p8
 
     artifacts:
       - /tmp/SpeekZone.ipa/*.ipa

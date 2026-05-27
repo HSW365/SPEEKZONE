@@ -5,12 +5,12 @@ const config: CapacitorConfig = {
   appName: 'SpeekZone',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
   },
   ios: {
     contentInset: 'always',
     scrollEnabled: false,
-    backgroundColor: '#0a1628'
+    backgroundColor: '#0a1628',
   },
   plugins: {
     SplashScreen: {
@@ -20,12 +20,12 @@ const config: CapacitorConfig = {
     },
     StatusBar: {
       style: 'Dark',
-      backgroundColor: '#0a1628'
+      backgroundColor: '#0a1628',
     },
     PushNotifications: {
-      presentationOptions: ['badge', 'sound', 'alert']
-    }
-  }
+      presentationOptions: ['badge', 'sound', 'alert'],
+    },
+  },
 };
 
 export default config;

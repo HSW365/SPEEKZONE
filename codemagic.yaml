@@ -4,6 +4,8 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m1
     environment:
+      groups:
+        - app_store
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.speekzone.app
@@ -63,7 +65,7 @@ workflows:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_PRIVATE_KEY
         key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        issuer_id: d2aeeca9-68b4-480e-96e0-edced6996d56
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
         submit_to_app_store: false
         beta_groups:

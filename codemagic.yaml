@@ -3,7 +3,6 @@ workflows:
     name: SpeekZone iOS — App Store
     max_build_duration: 60
     instance_type: mac_mini_m1
-
     environment:
       ios_signing:
         distribution_type: app_store
@@ -11,10 +10,9 @@ workflows:
       vars:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
-        APP_STORE_APP_ID: 6740000000   # ← replace with your actual App Store app ID
+        APP_STORE_APP_ID: 6740000000
       node: 18.19.0
       xcode: latest
-
     scripts:
       - name: Install dependencies
         script: npm ci
@@ -24,7 +22,6 @@ workflows:
 
       - name: Capacitor sync
         script: |
-          npx cap add ios || true
           npx cap sync ios
 
       - name: Set iOS bundle version
@@ -47,19 +44,16 @@ workflows:
             -archivePath /tmp/SpeekZone.xcarchive \
             clean archive \
             CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM=$(keychain list-certificates | grep "Apple Distribution" | awk '{print $NF}' | head -1) \
             OTHER_CODE_SIGN_FLAGS="--keychain /tmp/temporary.keychain"
-
           xcodebuild -exportArchive \
             -archivePath /tmp/SpeekZone.xcarchive \
             -exportPath /tmp/SpeekZone.ipa \
-            -exportOptionsPlist /tmp/exportOptions.plist
+            -exportOptionsPlist ios/App/exportOptions.plist
 
       - name: Publish to App Store Connect
         script: |
           app-store-connect publish \
-            --path /tmp/SpeekZone.ipa/*.ipa \
-            --apple-id hoodstarent365@gmail.com
+            --path /tmp/SpeekZone.ipa/*.ipa
 
     artifacts:
       - /tmp/SpeekZone.ipa/*.ipa
@@ -71,6 +65,6 @@ workflows:
         key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
         issuer_id: d2aeeca9-68b4-480e-96e0-edced6996d56
         submit_to_testflight: true
-        submit_to_app_store: false   # set true when ready for full release
+        submit_to_app_store: false
         beta_groups:
           - External Testers

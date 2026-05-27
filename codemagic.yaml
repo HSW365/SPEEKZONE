@@ -55,7 +55,10 @@ workflows:
       - name: Publish to App Store Connect
         script: |
           app-store-connect publish \
-            --path /tmp/SpeekZone.ipa/*.ipa
+            --path /tmp/SpeekZone.ipa/*.ipa \
+            --key-id W9AY8PF52H \
+            --issuer-id d2aeeca9-68b4-480e-96e0-edced6996d56 \
+            --private-key @file:$CM_BUILD_DIR/AuthKey_W9AY8PF52H.p8
 
     artifacts:
       - /tmp/SpeekZone.ipa/*.ipa

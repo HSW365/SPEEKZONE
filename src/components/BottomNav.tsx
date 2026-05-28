@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Search, Mic, MessageCircle, User } from 'lucide-react';
+import { Home, Search, PlusSquare, Bell, User } from 'lucide-react';
 
 const TABS = [
-  { path: '/',         icon: Home,          label: 'Home' },
-  { path: '/discover', icon: Search,        label: 'Discover' },
-  { path: '/create',   icon: Mic,           label: 'Create' },
-  { path: '/inbox',    icon: MessageCircle, label: 'Inbox' },
-  { path: '/profile',  icon: User,          label: 'Profile' },
+  { path: '/',         icon: Home,       label: 'Home' },
+  { path: '/discover', icon: Search,     label: 'Discover' },
+  { path: '/record',   icon: PlusSquare, label: 'Record', special: true },
+  { path: '/activity', icon: Bell,       label: 'Activity' },
+  { path: '/profile',  icon: User,       label: 'Profile' },
 ];
 
 export default function BottomNav() {
@@ -18,27 +18,40 @@ export default function BottomNav() {
     <div
       className="flex-shrink-0 flex items-center justify-around pb-safe"
       style={{
-        background: 'rgba(10,22,40,0.98)',
-        borderTop: '1px solid rgba(25,118,210,0.2)',
+        background: 'rgba(0,0,0,0.95)',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
         backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        minHeight: 56,
+        minHeight: 60,
       }}
     >
-      {TABS.map(({ path, icon: Icon, label }) => {
+      {TABS.map(({ path, icon: Icon, label, special }) => {
         const active = pathname === path;
+        if (special) {
+          return (
+            <button
+              key={path}
+              onClick={() => navigate(path)}
+              className="flex items-center justify-center active:scale-90 transition-transform"
+              style={{
+                width: 52, height: 36, borderRadius: 10,
+                background: 'linear-gradient(135deg,#1565c0,#2196f3)',
+                boxShadow: '0 0 16px rgba(33,150,243,0.5)',
+              }}
+            >
+              <Icon size={20} color="#fff" strokeWidth={2.5} />
+            </button>
+          );
+        }
         return (
           <button
             key={path}
             onClick={() => navigate(path)}
-            className="flex flex-col items-center justify-center flex-1 py-2 active:opacity-60 transition-opacity"
+            className="flex flex-col items-center justify-center flex-1 py-2 active:opacity-60"
           >
-            <Icon
-              size={22}
-              color={active ? '#2196f3' : '#5a6478'}
-              strokeWidth={active ? 2.5 : 1.8}
-            />
-            {active && <div className="nav-dot" />}
+            <Icon size={24} color={active ? '#fff' : '#555'} strokeWidth={active ? 2.5 : 1.8} />
+            {active && (
+              <div style={{ width: 4, height: 4, borderRadius: 2, background: '#2196f3', marginTop: 3 }} />
+            )}
           </button>
         );
       })}

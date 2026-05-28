@@ -1,17 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-export interface User {
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-  plan: 'free' | 'basic' | 'pro' | 'elite';
-  bio?: string;
-  verified?: boolean;
-  followers?: number;
-  following?: number;
-  totalPlays?: number;
-}
+import { User } from '../utils/data';
 
 interface AuthContextType {
   user: User | null;
@@ -23,7 +11,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-const STORAGE_KEY = 'speekzone_user';
+const KEY = 'speekzone_v2_user';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -31,56 +19,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setUser(JSON.parse(stored));
+      const s = localStorage.getItem(KEY);
+      if (s) setUser(JSON.parse(s));
     } catch {}
     setLoading(false);
   }, []);
 
   const persist = (u: User | null) => {
     setUser(u);
-    if (u) localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
-    else localStorage.removeItem(STORAGE_KEY);
+    if (u) localStorage.setItem(KEY, JSON.stringify(u));
+    else localStorage.removeItem(KEY);
   };
 
-  const login = async (email: string, _password: string) => {
-    await new Promise(r => setTimeout(r, 800));
-    const u: User = {
-      id: '1',
-      name: 'HOODSTAR365',
-      username: 'hoodstar365',
-      email,
-      plan: 'pro',
-      bio: 'Founder · HSW365Media LLC',
-      verified: true,
-      followers: 12400,
-      following: 340,
-      totalPlays: 48200,
-    };
-    persist(u);
+  const login = async (email: string, _pw: string) => {
+    await new Promise(r => setTimeout(r, 700));
+    persist({
+      id: '1', name: 'HOODSTAR365', username: 'hoodstar365', email,
+      bio: 'Founder · HSW365Media LLC 🌍', verified: true,
+      followers: 124000, following: 340, totalLikes: 2400000,
+      coins: 5000, plan: 'pro',
+    });
   };
 
-  const register = async (name: string, email: string, _password: string) => {
-    await new Promise(r => setTimeout(r, 800));
-    const u: User = {
-      id: Date.now().toString(),
-      name,
+  const register = async (name: string, email: string, _pw: string) => {
+    await new Promise(r => setTimeout(r, 700));
+    persist({
+      id: Date.now().toString(), name,
       username: name.toLowerCase().replace(/\s+/g, ''),
-      email,
-      plan: 'free',
-      followers: 0,
-      following: 0,
-      totalPlays: 0,
-    };
-    persist(u);
+      email, followers: 0, following: 0, totalLikes: 0, coins: 100, plan: 'free',
+    });
   };
 
   const logout = () => persist(null);
-
-  const updateUser = (updates: Partial<User>) => {
-    if (!user) return;
-    persist({ ...user, ...updates });
-  };
+  const updateUser = (u: Partial<User>) => { if (user) persist({ ...user, ...u }); };
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
@@ -91,6 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error('useAuth outside AuthProvider');
   return ctx;
 }

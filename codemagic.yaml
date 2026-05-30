@@ -13,7 +13,6 @@ workflows:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
         APP_STORE_APP_ID: 6758737787
-        APP_STORE_CONNECT_MAX_FIND_BUILD_WAIT: "30"
       node: 18.19.0
       xcode: latest
     scripts:
@@ -56,16 +55,15 @@ workflows:
             -exportPath /tmp/SpeekZone.ipa \
             -exportOptionsPlist ios/App/exportOptions.plist
 
-      - name: Publish to TestFlight
+      - name: Upload to TestFlight
         script: |
-          app-store-connect publish \
-            --path /tmp/SpeekZone.ipa/*.ipa \
-            --key-id AC7T7RNVVR \
-            --issuer-id d2aeeca9-68b4-480e-96e0-edced6996d56 \
-            --private-key @file:$CM_BUILD_DIR/AuthKey_AC7T7RNVVR.p8 \
-            --testflight \
-            --beta-group "External Testers" \
-            --max-find-build-wait 30
+          xcrun altool --upload-app \
+            --type ios \
+            --file /tmp/SpeekZone.ipa/App.ipa \
+            --apiKey AC7T7RNVVR \
+            --apiIssuer d2aeeca9-68b4-480e-96e0-edced6996d56 \
+            --apiPrivateKey-file $CM_BUILD_DIR/AuthKey_AC7T7RNVVR.p8 \
+            --verbose
 
     artifacts:
       - /tmp/SpeekZone.ipa/*.ipa

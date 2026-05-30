@@ -57,12 +57,13 @@ workflows:
 
       - name: Upload to TestFlight
         script: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          cp $CM_BUILD_DIR/AuthKey_AC7T7RNVVR.p8 ~/.appstoreconnect/private_keys/
           xcrun altool --upload-app \
             --type ios \
             --file /tmp/SpeekZone.ipa/App.ipa \
             --apiKey AC7T7RNVVR \
             --apiIssuer d2aeeca9-68b4-480e-96e0-edced6996d56 \
-            --apiPrivateKey-file $CM_BUILD_DIR/AuthKey_AC7T7RNVVR.p8 \
             --verbose
 
     artifacts:

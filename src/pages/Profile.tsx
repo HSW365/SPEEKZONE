@@ -1,159 +1,323 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Settings, Grid, Heart, Play, ChevronRight, LogOut, Coins } from 'lucide-react';
-import { MOCK_CLIPS, PLANS } from '../utils/data';
+import {
+  Settings,
+  Grid,
+  Heart,
+  Play,
+  ChevronRight,
+  LogOut,
+  Coins,
+  Sparkles,
+  ShieldCheck,
+  BarChart3,
+  Video,
+  Crown
+} from 'lucide-react';
+import { MOCK_CLIPS } from '../utils/data';
 
 export default function Profile() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<'clips'|'liked'>('clips');
+  const [tab, setTab] = useState<'clips' | 'liked' | 'ai'>('clips');
 
-  const fmt = (n: number) => n >= 1000000 ? `${(n/1000000).toFixed(1)}M` : n >= 1000 ? `${(n/1000).toFixed(1)}K` : String(n);
+  const fmt = (n: number) =>
+    n >= 1000000 ? `${(n / 1000000).toFixed(1)}M` :
+    n >= 1000 ? `${(n / 1000).toFixed(1)}K` :
+    String(n);
 
-  const planColor = user?.plan === 'pro' ? '#ff5252' : user?.plan === 'creator' ? '#2196f3' : '#555';
+  const plan = user?.plan ?? 'free';
+  const planColor = plan === 'pro' ? '#ff0055' : plan === 'creator' ? '#00eaff' : '#777';
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#000' }}>
-      {/* Header */}
-      <div className="pt-safe flex-shrink-0 px-5" style={{ borderBottom: '1px solid #111' }}>
-        <div className="flex items-center justify-between py-3">
-          <h1 style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 22, color: '#fff' }}>
-            @{user?.username}
+    <div className="h-full bg-black text-white flex flex-col">
+      <div
+        className="pt-safe flex-shrink-0"
+        style={{
+          background:
+            'radial-gradient(circle at 20% 0%, rgba(0,234,255,.22), transparent 28%), radial-gradient(circle at 85% 20%, rgba(255,0,85,.18), transparent 30%), #000',
+          borderBottom: '1px solid rgba(255,255,255,.08)'
+        }}
+      >
+        <div className="flex items-center justify-between px-5 py-4">
+          <h1 style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 24 }}>
+            @{user?.username || 'hoodstar365'}
           </h1>
-          <button className="active:opacity-60"><Settings size={22} color="#888" /></button>
+
+          <button
+            className="rounded-full flex items-center justify-center active:scale-95"
+            style={{
+              width: 40,
+              height: 40,
+              background: 'rgba(255,255,255,.08)',
+              border: '1px solid rgba(255,255,255,.1)'
+            }}
+          >
+            <Settings size={21} color="#fff" />
+          </button>
         </div>
 
-        {/* Avatar + stats */}
-        <div className="flex items-center gap-5 pb-4">
-          <div className="rounded-full flex items-center justify-center flex-shrink-0 relative"
-            style={{ width: 80, height: 80, background: 'linear-gradient(135deg,#1565c0,#2196f3)', border: '2px solid rgba(33,150,243,0.5)', fontSize: 30, fontWeight: 900, color: '#fff' }}>
-            {user?.name?.[0]}
-            {user?.verified && (
-              <div className="absolute -bottom-1 -right-1 rounded-full flex items-center justify-center"
-                style={{ width: 22, height: 22, background: '#2196f3', fontSize: 12, border: '2px solid #000' }}>✓</div>
-            )}
-          </div>
-          <div className="flex gap-6 flex-1">
-            {[
-              { val: fmt(MOCK_CLIPS.length), label: 'Clips' },
-              { val: fmt(user?.followers ?? 0), label: 'Followers' },
-              { val: fmt(user?.following ?? 0), label: 'Following' },
-            ].map(({ val, label }) => (
-              <div key={label} className="flex flex-col items-center">
-                <span style={{ color: '#fff', fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 22, lineHeight: 1 }}>{val}</span>
-                <span style={{ color: '#555', fontSize: 12, marginTop: 2 }}>{label}</span>
+        <div className="px-5 pb-5">
+          <div className="flex items-center gap-5">
+            <div
+              className="relative rounded-full flex items-center justify-center flex-shrink-0"
+              style={{
+                width: 92,
+                height: 92,
+                background: 'linear-gradient(135deg,#00eaff,#ff0055)',
+                boxShadow: '0 0 45px rgba(0,234,255,.22)',
+                fontSize: 34,
+                fontWeight: 900
+              }}
+            >
+              {user?.name?.[0] || 'H'}
+
+              <div
+                className="absolute -bottom-1 -right-1 rounded-full flex items-center justify-center"
+                style={{
+                  width: 28,
+                  height: 28,
+                  background: '#0b84ff',
+                  border: '3px solid #000'
+                }}
+              >
+                <ShieldCheck size={16} color="#fff" />
               </div>
-            ))}
+            </div>
+
+            <div className="flex-1 grid grid-cols-3 gap-2">
+              {[
+                { val: fmt(MOCK_CLIPS.length), label: 'Clips' },
+                { val: fmt(user?.followers ?? 12400), label: 'Followers' },
+                { val: fmt(user?.totalLikes ?? 248000), label: 'Likes' }
+              ].map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <p style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 25 }}>
+                    {stat.val}
+                  </p>
+                  <p className="text-white/45 text-xs">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-1">
+              <p className="font-black text-lg">{user?.name || 'HOODSTAR365'}</p>
+              <span
+                className="px-2 py-0.5 rounded-full text-xs font-black"
+                style={{
+                  color: planColor,
+                  background: `${planColor}22`,
+                  border: `1px solid ${planColor}55`
+                }}
+              >
+                {plan.toUpperCase()}
+              </span>
+            </div>
+
+            <p className="text-white/65 text-sm leading-snug">
+              Creator. Artist. Builder. Powered by SpeekZone AI.
+            </p>
+
+            <div className="flex items-center gap-2 mt-3">
+              <Coins size={16} color="#ffd700" />
+              <span className="text-sm font-bold" style={{ color: '#ffd700' }}>
+                {fmt(user?.coins ?? 2500)} coins
+              </span>
+              <span className="text-white/25">•</span>
+              <span className="text-cyan-300 text-sm font-bold">AI Creator Score 92</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 mt-5">
+            <button
+              className="py-3 rounded-2xl font-black active:scale-95"
+              style={{ background: '#111', border: '1px solid rgba(255,255,255,.1)' }}
+            >
+              Edit Profile
+            </button>
+
+            <button
+              onClick={() => navigate('/record')}
+              className="py-3 rounded-2xl font-black active:scale-95"
+              style={{ background: 'linear-gradient(90deg,#00eaff,#ff0055)', color: '#fff' }}
+            >
+              Create
+            </button>
+
+            <button
+              onClick={() => navigate('/pricing')}
+              className="py-3 rounded-2xl font-black active:scale-95"
+              style={{ background: '#fff', color: '#000' }}
+            >
+              Upgrade
+            </button>
+          </div>
+
+          <div
+            className="mt-5 rounded-3xl p-4"
+            style={{
+              background: 'rgba(255,255,255,.06)',
+              border: '1px solid rgba(255,255,255,.1)',
+              backdropFilter: 'blur(14px)'
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Sparkles color="#00eaff" size={22} />
+                <div>
+                  <p className="font-black text-sm">AI Growth Kit</p>
+                  <p className="text-white/45 text-xs">Captions, scripts, hashtags, analytics</p>
+                </div>
+              </div>
+
+              <button onClick={() => navigate('/record')}>
+                <ChevronRight size={20} color="#777" />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Name + bio */}
-        <div className="pb-3">
-          <div className="flex items-center gap-2 mb-1">
-            <span style={{ color: '#fff', fontWeight: 800, fontSize: 16 }}>{user?.name}</span>
-            <span className="px-2 py-0.5 rounded-full text-xs font-bold"
-              style={{ background: `${planColor}22`, color: planColor, border: `1px solid ${planColor}44` }}>
-              {(user?.plan ?? 'free').toUpperCase()}
-            </span>
-          </div>
-          {user?.bio && <p style={{ color: '#888', fontSize: 14, lineHeight: 1.4 }}>{user.bio}</p>}
-          {/* Coins */}
-          <div className="flex items-center gap-2 mt-2">
-            <span style={{ fontSize: 16 }}>🪙</span>
-            <span style={{ color: '#ffd700', fontWeight: 700, fontSize: 14 }}>{fmt(user?.coins ?? 0)} coins</span>
-          </div>
-        </div>
+        <div className="flex px-5">
+          {[
+            { id: 'clips', label: 'Clips', icon: Grid },
+            { id: 'liked', label: 'Liked', icon: Heart },
+            { id: 'ai', label: 'AI', icon: Sparkles }
+          ].map(({ id, label, icon: Icon }) => {
+            const active = tab === id;
 
-        {/* Action buttons */}
-        <div className="flex gap-3 pb-4">
-          <button className="flex-1 py-2.5 rounded-xl font-bold text-sm"
-            style={{ background: '#111', border: '1px solid #222', color: '#fff', fontFamily: 'Barlow Condensed', fontSize: 16 }}>
-            Edit Profile
-          </button>
-          <button onClick={() => navigate('/pricing')}
-            className="flex-1 py-2.5 rounded-xl font-bold text-sm"
-            style={{ background: user?.plan === 'free' ? 'linear-gradient(135deg,#1565c0,#2196f3)' : '#111', border: '1px solid #222', color: '#fff', fontFamily: 'Barlow Condensed', fontSize: 16 }}>
-            {user?.plan === 'free' ? 'Go Creator' : 'Manage Plan'}
-          </button>
-          <button className="py-2.5 px-3 rounded-xl"
-            style={{ background: '#111', border: '1px solid #222' }}>
-            <ChevronRight size={18} color="#888" />
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex border-b" style={{ borderColor: '#111', marginLeft: -20, marginRight: -20, paddingLeft: 20 }}>
-          <button onClick={() => setTab('clips')}
-            className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition-colors"
-            style={{ color: tab === 'clips' ? '#fff' : '#555', borderBottom: tab === 'clips' ? '2px solid #fff' : '2px solid transparent' }}>
-            <Grid size={16} /> Clips
-          </button>
-          <button onClick={() => setTab('liked')}
-            className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition-colors"
-            style={{ color: tab === 'liked' ? '#fff' : '#555', borderBottom: tab === 'liked' ? '2px solid #fff' : '2px solid transparent' }}>
-            <Heart size={16} /> Liked
-          </button>
+            return (
+              <button
+                key={id}
+                onClick={() => setTab(id as any)}
+                className="flex-1 flex items-center justify-center gap-2 py-3 font-black text-sm"
+                style={{
+                  color: active ? '#fff' : 'rgba(255,255,255,.35)',
+                  borderBottom: active ? '2px solid #fff' : '2px solid transparent'
+                }}
+              >
+                <Icon size={16} />
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {/* Clips grid */}
-        <div className="grid grid-cols-3 gap-0.5 p-0.5">
-          {(tab === 'clips' ? MOCK_CLIPS : MOCK_CLIPS.slice(0,2)).map(clip => (
-            <div key={clip.id} className="relative active:opacity-70" style={{ aspectRatio: '9/16', background: '#0a0f1a' }}>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="flex items-center gap-0.5">
-                  {clip.waveform.slice(0,8).map((h, i) => (
-                    <div key={i} style={{ width: 3, borderRadius: 1.5, height: `${h * 32 + 4}px`, background: 'rgba(33,150,243,0.5)' }} />
-                  ))}
+        {(tab === 'clips' || tab === 'liked') && (
+          <div className="grid grid-cols-3 gap-1 p-1">
+            {(tab === 'clips' ? MOCK_CLIPS : MOCK_CLIPS.slice(0, 3)).map((clip, index) => (
+              <div
+                key={clip.id}
+                className="relative overflow-hidden active:opacity-80"
+                style={{
+                  aspectRatio: '9/16',
+                  background:
+                    index % 3 === 0
+                      ? 'linear-gradient(160deg,#050505,#24002d,#ff0055)'
+                      : index % 3 === 1
+                      ? 'linear-gradient(160deg,#020202,#002833,#00eaff)'
+                      : 'linear-gradient(160deg,#030303,#251500,#ffb000)'
+                }}
+              >
+                <div className="absolute inset-0 flex items-center justify-center opacity-80">
+                  <Video size={30} color="#fff" />
+                </div>
+
+                <div className="absolute left-2 bottom-2 flex items-center gap-1">
+                  <Play size={11} fill="#fff" color="#fff" />
+                  <span className="text-xs font-black">{fmt(clip.likes)}</span>
                 </div>
               </div>
-              <div className="absolute bottom-2 left-2 flex items-center gap-1">
-                <Play size={10} fill="#fff" color="#fff" />
-                <span style={{ color: '#fff', fontSize: 10, fontWeight: 700 }}>{(clip.likes/1000).toFixed(1)}K</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {user?.plan === 'free' && tab === 'clips' && (
-          <div className="mx-4 my-4 rounded-2xl p-5 text-center"
-            style={{ background: 'rgba(33,150,243,0.08)', border: '1px solid rgba(33,150,243,0.2)' }}
-            onClick={() => navigate('/pricing')}>
-            <p style={{ fontFamily: 'Barlow Condensed', fontWeight: 800, fontSize: 18, marginBottom: 6 }}>Start Creating</p>
-            <p style={{ color: '#888', fontSize: 13, marginBottom: 12 }}>Upgrade to post clips and grow your audience.</p>
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full"
-              style={{ background: 'linear-gradient(135deg,#1565c0,#2196f3)' }}>
-              <span style={{ fontFamily: 'Barlow Condensed', fontWeight: 700, fontSize: 15 }}>Go Creator — $9.99/mo</span>
-            </div>
+            ))}
           </div>
         )}
 
-        {/* Settings */}
-        <div className="mx-4 mt-4 mb-6 rounded-2xl overflow-hidden" style={{ border: '1px solid #111' }}>
+        {tab === 'ai' && (
+          <div className="p-5 space-y-4">
+            {[
+              {
+                icon: Sparkles,
+                title: 'AI Caption Generator',
+                desc: 'Turn your idea into viral-ready captions.'
+              },
+              {
+                icon: BarChart3,
+                title: 'Creator Analytics',
+                desc: 'Track growth, engagement, likes, and watch time.'
+              },
+              {
+                icon: Crown,
+                title: 'Monetization Tools',
+                desc: 'Gifts, coins, subscriptions, and premium content.'
+              }
+            ].map(({ icon: Icon, title, desc }) => (
+              <button
+                key={title}
+                onClick={() => navigate('/record')}
+                className="w-full rounded-3xl p-5 flex items-center gap-4 text-left active:scale-95"
+                style={{
+                  background: '#0b0b0b',
+                  border: '1px solid rgba(255,255,255,.08)'
+                }}
+              >
+                <div
+                  className="rounded-2xl flex items-center justify-center"
+                  style={{
+                    width: 54,
+                    height: 54,
+                    background: 'linear-gradient(135deg,rgba(0,234,255,.22),rgba(255,0,85,.2))'
+                  }}
+                >
+                  <Icon color="#00eaff" />
+                </div>
+
+                <div className="flex-1">
+                  <p className="font-black">{title}</p>
+                  <p className="text-white/45 text-sm mt-1">{desc}</p>
+                </div>
+
+                <ChevronRight size={18} color="#555" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="mx-4 mt-4 mb-7 rounded-3xl overflow-hidden" style={{ border: '1px solid #111' }}>
           {[
-            { label: 'Buy Coins', action: () => {} },
+            { label: 'Buy Coins', action: () => navigate('/pricing') },
             { label: 'Manage Subscription', action: () => navigate('/pricing') },
             { label: 'Privacy Policy', action: () => {} },
-            { label: 'Terms of Service', action: () => {} },
+            { label: 'Terms of Service', action: () => {} }
           ].map(({ label, action }) => (
-            <button key={label} onClick={action}
+            <button
+              key={label}
+              onClick={action}
               className="w-full flex items-center justify-between px-5 py-4 active:bg-white/5"
-              style={{ borderBottom: '1px solid #111', background: '#0a0a0a' }}>
-              <span style={{ color: '#888', fontSize: 15 }}>{label}</span>
+              style={{ borderBottom: '1px solid #111', background: '#070707' }}
+            >
+              <span className="text-white/55 text-sm font-bold">{label}</span>
               <ChevronRight size={16} color="#333" />
             </button>
           ))}
-          <button onClick={logout}
+
+          <button
+            onClick={logout}
             className="w-full flex items-center justify-between px-5 py-4 active:bg-white/5"
-            style={{ background: '#0a0a0a' }}>
-            <span style={{ color: '#ff5252', fontSize: 15 }}>Sign Out</span>
+            style={{ background: '#070707' }}
+          >
+            <span className="text-sm font-bold" style={{ color: '#ff5252' }}>
+              Sign Out
+            </span>
             <LogOut size={16} color="#ff5252" />
           </button>
         </div>
-        <p className="text-center pb-6" style={{ color: '#222', fontSize: 11 }}>
-          SpeekZone v2.0 · hsw365media@gmail.com
+
+        <p className="text-center pb-6 text-white/15 text-xs">
+          SpeekZone · AI Creator Network
         </p>
       </div>
     </div>

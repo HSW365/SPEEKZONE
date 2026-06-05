@@ -3,6 +3,7 @@ workflows:
     name: SpeekZone iOS — App Store
     max_build_duration: 90
     instance_type: mac_mini_m1
+
     environment:
       groups:
         - hsw365media
@@ -13,35 +14,48 @@ workflows:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
         APP_STORE_APP_ID: 6758737787
+        APP_VERSION: 1.0.0
       node: 18.19.0
       xcode: latest
+
     scripts:
       - name: Install dependencies
-        script: npm ci
+        script: |
+          npm ci
 
       - name: Build web app
-        script: npm run build
+        script: |
+          npm run build
 
-      - name: Capacitor sync
+      - name: Sync Capacitor iOS
         script: |
           npx cap sync ios
 
-      - name: Set iOS bundle version
+      - name: Install CocoaPods
         script: |
+          pod install
+        working_directory: ios/App
+
+      - name: Set iOS version and build number
+        script: |
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $APP_VERSION" App/Info.plist
+
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APP_ID" \
             --key-id AC7T7RNVVR \
             --issuer-id d2aeeca9-68b4-480e-96e0-edced6996d56 \
             --private-key @file:$CM_BUILD_DIR/AuthKey_AC7T7RNVVR.p8 2>/dev/null || echo "0")
-          agvtool new-version -all $(($LATEST_BUILD + 1))
+
+          NEXT_BUILD=$(($LATEST_BUILD + 1))
+
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEXT_BUILD" App/Info.plist
+
+          echo "Using version $APP_VERSION build $NEXT_BUILD"
         working_directory: ios/App
 
-      - name: CocoaPods install
-        script: pod install
-        working_directory: ios/App
-
-      - name: Build and sign for App Store
+      - name: Build and sign IPA
         script: |
           xcode-project use-profiles
+
           xcodebuild \
             -workspace "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
@@ -50,6 +64,7 @@ workflows:
             clean archive \
             CODE_SIGN_STYLE=Manual \
             OTHER_CODE_SIGN_FLAGS="--keychain /tmp/temporary.keychain"
+
           xcodebuild -exportArchive \
             -archivePath /tmp/SpeekZone.xcarchive \
             -exportPath /tmp/SpeekZone.ipa \
@@ -58,7 +73,8 @@ workflows:
       - name: Upload to TestFlight
         script: |
           mkdir -p ~/.appstoreconnect/private_keys
-          cp $CM_BUILD_DIR/AuthKey_AC7T7RNVVR.p8 ~/.appstoreconnect/private_keys/
+          cp "$CM_BUILD_DIR/AuthKey_AC7T7RNVVR.p8" ~/.appstoreconnect/private_keys/
+
           xcrun altool --upload-app \
             --type ios \
             --file /tmp/SpeekZone.ipa/App.ipa \

@@ -19,39 +19,70 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const s = localStorage.getItem(KEY);
-      if (s) setUser(JSON.parse(s));
+      const savedUser = localStorage.getItem(KEY);
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      }
     } catch {}
+
     setLoading(false);
   }, []);
 
   const persist = (u: User | null) => {
     setUser(u);
-    if (u) localStorage.setItem(KEY, JSON.stringify(u));
-    else localStorage.removeItem(KEY);
+
+    if (u) {
+      localStorage.setItem(KEY, JSON.stringify(u));
+    } else {
+      localStorage.removeItem(KEY);
+    }
   };
 
-  const login = async (email: string, _pw: string) => {
-    await new Promise(r => setTimeout(r, 700));
+  const login = async (email: string, _password: string) => {
+    await new Promise(resolve => setTimeout(resolve, 600));
+
     persist({
-      id: '1', name: 'HOODSTAR365', username: 'hoodstar365', email,
-      bio: 'Founder · HSW365Media LLC 🌍', verified: true,
-      followers: 124000, following: 340, totalLikes: 2400000,
-      coins: 5000, plan: 'pro',
+      id: '1',
+      name: 'HOODSTAR365',
+      username: 'hoodstar365',
+      email,
+      bio: 'Founder of SpeekZone · AI Creator Network · HSW365Media',
+      verified: true,
+      followers: 124000,
+      following: 340,
+      totalLikes: 2400000,
+      coins: 5000,
+      plan: 'pro',
     });
   };
 
-  const register = async (name: string, email: string, _pw: string) => {
-    await new Promise(r => setTimeout(r, 700));
+  const register = async (name: string, email: string, _password: string) => {
+    await new Promise(resolve => setTimeout(resolve, 600));
+
     persist({
-      id: Date.now().toString(), name,
+      id: Date.now().toString(),
+      name,
       username: name.toLowerCase().replace(/\s+/g, ''),
-      email, followers: 0, following: 0, totalLikes: 0, coins: 100, plan: 'free',
+      email,
+      bio: 'New creator on SpeekZone',
+      verified: false,
+      followers: 0,
+      following: 0,
+      totalLikes: 0,
+      coins: 100,
+      plan: 'free',
     });
   };
 
-  const logout = () => persist(null);
-  const updateUser = (u: Partial<User>) => { if (user) persist({ ...user, ...u }); };
+  const logout = () => {
+    persist(null);
+  };
+
+  const updateUser = (updates: Partial<User>) => {
+    if (user) {
+      persist({ ...user, ...updates });
+    }
+  };
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
@@ -62,6 +93,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth outside AuthProvider');
+
+  if (!ctx) {
+    throw new Error('useAuth must be used inside AuthProvider');
+  }
+
   return ctx;
 }

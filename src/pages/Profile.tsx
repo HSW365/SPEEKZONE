@@ -13,14 +13,176 @@ import {
   ShieldCheck,
   BarChart3,
   Video,
-  Crown
+  Crown,
+  Trash2,
+  AlertTriangle,
+  X,
+  CheckCircle
 } from 'lucide-react';
 import { MOCK_CLIPS } from '../utils/data';
 
+function DeleteAccountModal({ onClose, onConfirm }: { onClose: () => void; onConfirm: () => void }) {
+  const [step, setStep] = useState<'confirm' | 'deleting' | 'done'>('confirm');
+  const [inputVal, setInputVal] = useState('');
+
+  const handleDelete = async () => {
+    setStep('deleting');
+    await onConfirm();
+    setStep('done');
+  };
+
+  if (step === 'done') {
+    return (
+      <div
+        className="fixed inset-0 flex items-center justify-center z-50"
+        style={{ background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(12px)' }}
+      >
+        <div
+          className="mx-5 rounded-3xl p-8 text-center"
+          style={{ background: '#0d0d0d', border: '1px solid rgba(255,255,255,.1)', maxWidth: 380, width: '100%' }}
+        >
+          <CheckCircle size={56} color="#00eaff" className="mx-auto mb-4" />
+          <h2 className="text-white font-black text-xl mb-2">Account Deleted</h2>
+          <p className="text-white/55 text-sm">Your account and all associated data have been permanently removed.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 'deleting') {
+    return (
+      <div
+        className="fixed inset-0 flex items-center justify-center z-50"
+        style={{ background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(12px)' }}
+      >
+        <div
+          className="mx-5 rounded-3xl p-8 text-center"
+          style={{ background: '#0d0d0d', border: '1px solid rgba(255,255,255,.1)', maxWidth: 380, width: '100%' }}
+        >
+          <div
+            className="mx-auto mb-4 rounded-full"
+            style={{
+              width: 56,
+              height: 56,
+              border: '3px solid #ff0055',
+              borderTopColor: 'transparent',
+              animation: 'spin 0.8s linear infinite',
+            }}
+          />
+          <h2 className="text-white font-black text-xl mb-2">Deleting Account...</h2>
+          <p className="text-white/55 text-sm">Permanently removing your data.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50"
+      style={{ background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(12px)' }}
+    >
+      <div
+        className="mx-5 rounded-3xl overflow-hidden"
+        style={{ background: '#0d0d0d', border: '1px solid rgba(255,255,255,.1)', maxWidth: 380, width: '100%' }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid rgba(255,255,255,.07)' }}>
+          <div className="flex items-center gap-3">
+            <div
+              className="rounded-2xl flex items-center justify-center"
+              style={{ width: 44, height: 44, background: 'rgba(255,0,85,.15)', border: '1px solid rgba(255,0,85,.3)' }}
+            >
+              <AlertTriangle size={22} color="#ff0055" />
+            </div>
+            <div>
+              <h2 className="text-white font-black text-lg leading-tight">Delete Account</h2>
+              <p className="text-white/40 text-xs">This cannot be undone</p>
+            </div>
+          </div>
+          <button
+            onPointerDown={onClose}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              background: 'rgba(255,255,255,.08)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              touchAction: 'manipulation',
+            }}
+          >
+            <X size={18} color="#fff" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-5">
+          <p className="text-white/70 text-sm leading-relaxed mb-5">
+            Permanently deleting your account will remove:
+          </p>
+
+          {['Your profile and username', 'All posts, clips, and content', 'Followers and following lists', 'Coins, gifts, and earnings', 'All account data and history'].map((item) => (
+            <div key={item} className="flex items-center gap-3 mb-3">
+              <div style={{ width: 6, height: 6, borderRadius: 3, background: '#ff0055', flexShrink: 0 }} />
+              <span className="text-white/60 text-sm">{item}</span>
+            </div>
+          ))}
+
+          <p className="text-white/70 text-sm mt-5 mb-3">
+            Type <span className="text-white font-black">DELETE</span> to confirm:
+          </p>
+
+          <input
+            type="text"
+            value={inputVal}
+            onChange={(e) => setInputVal(e.target.value)}
+            placeholder="Type DELETE"
+            className="w-full px-4 py-3 rounded-2xl text-white text-sm font-bold outline-none"
+            style={{
+              background: 'rgba(255,255,255,.06)',
+              border: `1px solid ${inputVal === 'DELETE' ? '#ff0055' : 'rgba(255,255,255,.12)'}`,
+              letterSpacing: 1,
+            }}
+          />
+        </div>
+
+        {/* Actions */}
+        <div className="px-6 pb-6 flex gap-3">
+          <button
+            onPointerDown={onClose}
+            className="flex-1 py-4 rounded-2xl font-black text-sm"
+            style={{
+              background: 'rgba(255,255,255,.07)',
+              color: '#fff',
+              touchAction: 'manipulation',
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onPointerDown={() => { if (inputVal === 'DELETE') handleDelete(); }}
+            className="flex-1 py-4 rounded-2xl font-black text-sm"
+            style={{
+              background: inputVal === 'DELETE' ? '#ff0055' : 'rgba(255,0,85,.2)',
+              color: inputVal === 'DELETE' ? '#fff' : 'rgba(255,255,255,.3)',
+              touchAction: 'manipulation',
+              transition: 'all 0.2s',
+            }}
+          >
+            Delete Forever
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<'clips' | 'liked' | 'ai'>('clips');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const fmt = (n: number) =>
     n >= 1000000 ? `${(n / 1000000).toFixed(1)}M` :
@@ -30,8 +192,19 @@ export default function Profile() {
   const plan = user?.plan ?? 'free';
   const planColor = plan === 'pro' ? '#ff0055' : plan === 'creator' ? '#00eaff' : '#777';
 
+  const handleDeleteConfirm = async () => {
+    await deleteAccount();
+  };
+
   return (
     <div className="h-full bg-black text-white flex flex-col">
+      {showDeleteModal && (
+        <DeleteAccountModal
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleDeleteConfirm}
+        />
+      )}
+
       <div
         className="pt-safe flex-shrink-0"
         style={{
@@ -46,12 +219,13 @@ export default function Profile() {
           </h1>
 
           <button
-            className="rounded-full flex items-center justify-center active:scale-95"
+            className="rounded-full flex items-center justify-center"
             style={{
               width: 40,
               height: 40,
               background: 'rgba(255,255,255,.08)',
-              border: '1px solid rgba(255,255,255,.1)'
+              border: '1px solid rgba(255,255,255,.1)',
+              touchAction: 'manipulation',
             }}
           >
             <Settings size={21} color="#fff" />
@@ -133,24 +307,36 @@ export default function Profile() {
 
           <div className="grid grid-cols-3 gap-3 mt-5">
             <button
-              className="py-3 rounded-2xl font-black active:scale-95"
-              style={{ background: '#111', border: '1px solid rgba(255,255,255,.1)' }}
+              className="py-3 rounded-2xl font-black"
+              style={{
+                background: '#111',
+                border: '1px solid rgba(255,255,255,.1)',
+                touchAction: 'manipulation',
+              }}
             >
               Edit Profile
             </button>
 
             <button
-              onClick={() => navigate('/record')}
-              className="py-3 rounded-2xl font-black active:scale-95"
-              style={{ background: 'linear-gradient(90deg,#00eaff,#ff0055)', color: '#fff' }}
+              onPointerDown={() => navigate('/record')}
+              className="py-3 rounded-2xl font-black"
+              style={{
+                background: 'linear-gradient(90deg,#00eaff,#ff0055)',
+                color: '#fff',
+                touchAction: 'manipulation',
+              }}
             >
               Create
             </button>
 
             <button
-              onClick={() => navigate('/pricing')}
-              className="py-3 rounded-2xl font-black active:scale-95"
-              style={{ background: '#fff', color: '#000' }}
+              onPointerDown={() => navigate('/pricing')}
+              className="py-3 rounded-2xl font-black"
+              style={{
+                background: '#fff',
+                color: '#000',
+                touchAction: 'manipulation',
+              }}
             >
               Upgrade
             </button>
@@ -173,7 +359,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              <button onClick={() => navigate('/record')}>
+              <button onPointerDown={() => navigate('/record')} style={{ touchAction: 'manipulation' }}>
                 <ChevronRight size={20} color="#777" />
               </button>
             </div>
@@ -191,11 +377,13 @@ export default function Profile() {
             return (
               <button
                 key={id}
-                onClick={() => setTab(id as any)}
+                onPointerDown={() => setTab(id as any)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 font-black text-sm"
                 style={{
                   color: active ? '#fff' : 'rgba(255,255,255,.35)',
-                  borderBottom: active ? '2px solid #fff' : '2px solid transparent'
+                  borderBottom: active ? '2px solid #fff' : '2px solid transparent',
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
                 }}
               >
                 <Icon size={16} />
@@ -212,7 +400,7 @@ export default function Profile() {
             {(tab === 'clips' ? MOCK_CLIPS : MOCK_CLIPS.slice(0, 3)).map((clip, index) => (
               <div
                 key={clip.id}
-                className="relative overflow-hidden active:opacity-80"
+                className="relative overflow-hidden"
                 style={{
                   aspectRatio: '9/16',
                   background:
@@ -257,11 +445,12 @@ export default function Profile() {
             ].map(({ icon: Icon, title, desc }) => (
               <button
                 key={title}
-                onClick={() => navigate('/record')}
-                className="w-full rounded-3xl p-5 flex items-center gap-4 text-left active:scale-95"
+                onPointerDown={() => navigate('/record')}
+                className="w-full rounded-3xl p-5 flex items-center gap-4 text-left"
                 style={{
                   background: '#0b0b0b',
-                  border: '1px solid rgba(255,255,255,.08)'
+                  border: '1px solid rgba(255,255,255,.08)',
+                  touchAction: 'manipulation',
                 }}
               >
                 <div
@@ -286,7 +475,7 @@ export default function Profile() {
           </div>
         )}
 
-        <div className="mx-4 mt-4 mb-7 rounded-3xl overflow-hidden" style={{ border: '1px solid #111' }}>
+        <div className="mx-4 mt-4 mb-2 rounded-3xl overflow-hidden" style={{ border: '1px solid #111' }}>
           {[
             { label: 'Buy Coins', action: () => navigate('/pricing') },
             { label: 'Manage Subscription', action: () => navigate('/pricing') },
@@ -295,9 +484,13 @@ export default function Profile() {
           ].map(({ label, action }) => (
             <button
               key={label}
-              onClick={action}
-              className="w-full flex items-center justify-between px-5 py-4 active:bg-white/5"
-              style={{ borderBottom: '1px solid #111', background: '#070707' }}
+              onPointerDown={action}
+              className="w-full flex items-center justify-between px-5 py-4"
+              style={{
+                borderBottom: '1px solid #111',
+                background: '#070707',
+                touchAction: 'manipulation',
+              }}
             >
               <span className="text-white/55 text-sm font-bold">{label}</span>
               <ChevronRight size={16} color="#333" />
@@ -305,18 +498,30 @@ export default function Profile() {
           ))}
 
           <button
-            onClick={logout}
-            className="w-full flex items-center justify-between px-5 py-4 active:bg-white/5"
-            style={{ background: '#070707' }}
+            onPointerDown={logout}
+            className="w-full flex items-center justify-between px-5 py-4"
+            style={{ background: '#070707', borderBottom: '1px solid #111', touchAction: 'manipulation' }}
           >
             <span className="text-sm font-bold" style={{ color: '#ff5252' }}>
               Sign Out
             </span>
             <LogOut size={16} color="#ff5252" />
           </button>
+
+          {/* Delete Account — Apple 5.1.1(v) requirement */}
+          <button
+            onPointerDown={() => setShowDeleteModal(true)}
+            className="w-full flex items-center justify-between px-5 py-4"
+            style={{ background: '#070707', touchAction: 'manipulation' }}
+          >
+            <span className="text-sm font-bold" style={{ color: '#ff3030' }}>
+              Delete Account
+            </span>
+            <Trash2 size={16} color="#ff3030" />
+          </button>
         </div>
 
-        <p className="text-center pb-6 text-white/15 text-xs">
+        <p className="text-center text-white/15 text-xs mt-2 pb-6">
           SpeekZone · AI Creator Network
         </p>
       </div>

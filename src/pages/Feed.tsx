@@ -1,17 +1,19 @@
 import React, { useState, useRef } from 'react';
 import { Heart, MessageCircle, Share2, Gift, Music, Play } from 'lucide-react';
-import { MOCK_CLIPS, GIFTS, Clip } from '../utils/data';
+import { MOCK_CLIPS, Clip } from '../utils/data';
 
 function ClipCard({ clip }: { clip: Clip }) {
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(clip.likes);
+  const [feedTab, setFeedTab] = useState<'following' | 'foryou' | 'live'>('foryou');
 
   const fmt = (n: number) =>
     n >= 1000000 ? `${(n / 1000000).toFixed(1)}M` :
     n >= 1000 ? `${(n / 1000).toFixed(1)}K` :
     String(n);
 
-  const handleLike = () => {
+  const handleLike = (e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
     setLiked(!liked);
     setLikes(liked ? likes - 1 : likes + 1);
   };
@@ -80,7 +82,7 @@ function ClipCard({ clip }: { clip: Clip }) {
             </h1>
 
             <p className="mt-3 text-sm text-white/80 max-w-xs">
-              Creator video preview. Add real video links later inside <b>videoUrl</b>.
+              Audio &amp; video creator network. Record, share, go viral.
             </p>
 
             <div className="mt-7 flex items-center gap-3 rounded-full px-5 py-3"
@@ -105,16 +107,46 @@ function ClipCard({ clip }: { clip: Clip }) {
         }}
       />
 
-      <div className="absolute top-0 left-0 right-0 pt-safe z-20">
+      {/* Top tab buttons — high z-index, explicit pointer-events */}
+      <div
+        className="absolute top-0 left-0 right-0 z-30"
+        style={{ paddingTop: 'env(safe-area-inset-top, 44px)' }}
+      >
         <div className="flex justify-center gap-7 py-4">
-          <button className="text-white/55 font-bold">Following</button>
-          <button className="text-white font-black border-b-2 border-white pb-1">For You</button>
-          <button className="text-white/55 font-bold">Live</button>
+          {(['following', 'foryou', 'live'] as const).map((t) => {
+            const label = t === 'foryou' ? 'For You' : t === 'following' ? 'Following' : 'Live';
+            const active = feedTab === t;
+            return (
+              <button
+                key={t}
+                onPointerDown={(e) => { e.stopPropagation(); setFeedTab(t); }}
+                style={{
+                  color: active ? '#fff' : 'rgba(255,255,255,.55)',
+                  fontWeight: active ? 900 : 700,
+                  borderBottom: active ? '2px solid #fff' : '2px solid transparent',
+                  paddingBottom: 4,
+                  fontSize: 15,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
+                  cursor: 'pointer',
+                  minWidth: 60,
+                  textAlign: 'center',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="absolute right-4 flex flex-col items-center gap-6 z-20" style={{ bottom: 150 }}>
-        <button onClick={handleLike} className="flex flex-col items-center gap-1 active:scale-90">
+      {/* Right action buttons */}
+      <div className="absolute right-4 flex flex-col items-center gap-6 z-30" style={{ bottom: 150 }}>
+        <button
+          onPointerDown={(e) => { e.stopPropagation(); handleLike(e); }}
+          className="flex flex-col items-center gap-1"
+          style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+        >
           <div className="rounded-full flex items-center justify-center"
             style={{ width: 52, height: 52, background: 'rgba(0,0,0,.35)', backdropFilter: 'blur(12px)' }}>
             <Heart size={31} color={liked ? '#ff2d55' : '#fff'} fill={liked ? '#ff2d55' : 'none'} />
@@ -122,7 +154,10 @@ function ClipCard({ clip }: { clip: Clip }) {
           <span className="text-xs font-black">{fmt(likes)}</span>
         </button>
 
-        <button className="flex flex-col items-center gap-1 active:scale-90">
+        <button
+          className="flex flex-col items-center gap-1"
+          style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+        >
           <div className="rounded-full flex items-center justify-center"
             style={{ width: 52, height: 52, background: 'rgba(0,0,0,.35)', backdropFilter: 'blur(12px)' }}>
             <MessageCircle size={31} color="#fff" />
@@ -130,7 +165,10 @@ function ClipCard({ clip }: { clip: Clip }) {
           <span className="text-xs font-black">{fmt(clip.comments)}</span>
         </button>
 
-        <button className="flex flex-col items-center gap-1 active:scale-90">
+        <button
+          className="flex flex-col items-center gap-1"
+          style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+        >
           <div className="rounded-full flex items-center justify-center"
             style={{ width: 52, height: 52, background: 'rgba(0,0,0,.35)', backdropFilter: 'blur(12px)' }}>
             <Share2 size={30} color="#fff" />
@@ -138,7 +176,10 @@ function ClipCard({ clip }: { clip: Clip }) {
           <span className="text-xs font-black">{fmt(clip.shares)}</span>
         </button>
 
-        <button className="flex flex-col items-center gap-1 active:scale-90">
+        <button
+          className="flex flex-col items-center gap-1"
+          style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+        >
           <div className="rounded-full flex items-center justify-center"
             style={{ width: 52, height: 52, background: 'rgba(0,0,0,.35)', backdropFilter: 'blur(12px)' }}>
             <Gift size={30} color="#ffd700" />
@@ -165,7 +206,10 @@ function ClipCard({ clip }: { clip: Clip }) {
           {clip.userVerified && (
             <span className="rounded-full bg-blue-500 text-white text-xs px-1.5">✓</span>
           )}
-          <button className="ml-2 px-3 py-1 rounded-full text-xs font-black border border-white">
+          <button
+            className="ml-2 px-3 py-1 rounded-full text-xs font-black border border-white"
+            style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+          >
             Follow
           </button>
         </div>
@@ -190,20 +234,28 @@ function ClipCard({ clip }: { clip: Clip }) {
 export default function Feed() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const startY = useRef(0);
+  const startX = useRef(0);
+  const isDragging = useRef(false);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    startY.current = e.touches[0].clientY;
+  const handlePointerDown = (e: React.PointerEvent) => {
+    // Only track swipe on the background, not on interactive elements
+    if ((e.target as HTMLElement).closest('button')) return;
+    startY.current = e.clientY;
+    startX.current = e.clientX;
+    isDragging.current = false;
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const diff = startY.current - e.changedTouches[0].clientY;
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    const diffY = startY.current - e.clientY;
+    const diffX = Math.abs(startX.current - e.clientX);
 
-    if (Math.abs(diff) > 50) {
-      if (diff > 0 && currentIndex < MOCK_CLIPS.length - 1) {
+    // Only vertical swipe if more vertical than horizontal
+    if (Math.abs(diffY) > 60 && Math.abs(diffY) > diffX * 1.5) {
+      if (diffY > 0 && currentIndex < MOCK_CLIPS.length - 1) {
         setCurrentIndex(i => i + 1);
       }
-
-      if (diff < 0 && currentIndex > 0) {
+      if (diffY < 0 && currentIndex > 0) {
         setCurrentIndex(i => i - 1);
       }
     }
@@ -212,8 +264,9 @@ export default function Feed() {
   return (
     <div
       className="relative w-full h-full overflow-hidden bg-black"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      style={{ touchAction: 'pan-y' }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
     >
       <div
         className="w-full h-full"

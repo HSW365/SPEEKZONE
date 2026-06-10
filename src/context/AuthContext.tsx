@@ -8,6 +8,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -84,8 +85,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const deleteAccount = async () => {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    // Clear all user data from storage
+    localStorage.removeItem(KEY);
+    localStorage.removeItem('speekzone_posts');
+    localStorage.removeItem('speekzone_likes');
+    localStorage.removeItem('speekzone_follows');
+    setUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

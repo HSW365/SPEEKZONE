@@ -20,6 +20,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { MOCK_CLIPS } from '../utils/data';
+import { useToast } from '../components/Toast';
 
 function DeleteAccountModal({ onClose, onConfirm }: { onClose: () => void; onConfirm: () => void }) {
   const [step, setStep] = useState<'confirm' | 'deleting' | 'done'>('confirm');
@@ -100,7 +101,7 @@ function DeleteAccountModal({ onClose, onConfirm }: { onClose: () => void; onCon
             </div>
           </div>
           <button
-            onPointerDown={onClose}
+            onClick={onClose}
             style={{
               width: 36,
               height: 36,
@@ -150,7 +151,7 @@ function DeleteAccountModal({ onClose, onConfirm }: { onClose: () => void; onCon
         {/* Actions */}
         <div className="px-6 pb-6 flex gap-3">
           <button
-            onPointerDown={onClose}
+            onClick={onClose}
             className="flex-1 py-4 rounded-2xl font-black text-sm"
             style={{
               background: 'rgba(255,255,255,.07)',
@@ -161,7 +162,7 @@ function DeleteAccountModal({ onClose, onConfirm }: { onClose: () => void; onCon
             Cancel
           </button>
           <button
-            onPointerDown={() => { if (inputVal === 'DELETE') handleDelete(); }}
+            onClick={() => { if (inputVal === 'DELETE') handleDelete(); }}
             className="flex-1 py-4 rounded-2xl font-black text-sm"
             style={{
               background: inputVal === 'DELETE' ? '#ff0055' : 'rgba(255,0,85,.2)',
@@ -183,6 +184,8 @@ export default function Profile() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<'clips' | 'liked' | 'ai'>('clips');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const toast = useToast();
+  const settingsRef = React.useRef<HTMLDivElement>(null);
 
   const fmt = (n: number) =>
     n >= 1000000 ? `${(n / 1000000).toFixed(1)}M` :
@@ -219,6 +222,7 @@ export default function Profile() {
           </h1>
 
           <button
+            onClick={() => settingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
             className="rounded-full flex items-center justify-center"
             style={{
               width: 40,
@@ -307,6 +311,7 @@ export default function Profile() {
 
           <div className="grid grid-cols-3 gap-3 mt-5">
             <button
+              onClick={() => toast('Profile editing coming soon')}
               className="py-3 rounded-2xl font-black"
               style={{
                 background: '#111',
@@ -318,7 +323,7 @@ export default function Profile() {
             </button>
 
             <button
-              onPointerDown={() => navigate('/record')}
+              onClick={() => navigate('/record')}
               className="py-3 rounded-2xl font-black"
               style={{
                 background: 'linear-gradient(90deg,#00eaff,#ff0055)',
@@ -330,7 +335,7 @@ export default function Profile() {
             </button>
 
             <button
-              onPointerDown={() => navigate('/pricing')}
+              onClick={() => navigate('/pricing')}
               className="py-3 rounded-2xl font-black"
               style={{
                 background: '#fff',
@@ -359,7 +364,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              <button onPointerDown={() => navigate('/record')} style={{ touchAction: 'manipulation' }}>
+              <button onClick={() => navigate('/record')} style={{ touchAction: 'manipulation' }}>
                 <ChevronRight size={20} color="#777" />
               </button>
             </div>
@@ -377,7 +382,7 @@ export default function Profile() {
             return (
               <button
                 key={id}
-                onPointerDown={() => setTab(id as any)}
+                onClick={() => setTab(id as any)}
                 className="flex-1 flex items-center justify-center gap-2 py-3 font-black text-sm"
                 style={{
                   color: active ? '#fff' : 'rgba(255,255,255,.35)',
@@ -445,7 +450,7 @@ export default function Profile() {
             ].map(({ icon: Icon, title, desc }) => (
               <button
                 key={title}
-                onPointerDown={() => navigate('/record')}
+                onClick={() => navigate('/record')}
                 className="w-full rounded-3xl p-5 flex items-center gap-4 text-left"
                 style={{
                   background: '#0b0b0b',
@@ -475,16 +480,16 @@ export default function Profile() {
           </div>
         )}
 
-        <div className="mx-4 mt-4 mb-2 rounded-3xl overflow-hidden" style={{ border: '1px solid #111' }}>
+        <div ref={settingsRef} className="mx-4 mt-4 mb-2 rounded-3xl overflow-hidden" style={{ border: '1px solid #111' }}>
           {[
             { label: 'Buy Coins', action: () => navigate('/pricing') },
             { label: 'Manage Subscription', action: () => navigate('/pricing') },
-            { label: 'Privacy Policy', action: () => {} },
-            { label: 'Terms of Service', action: () => {} }
+            { label: 'Privacy Policy', action: () => window.open('https://speekzone.com/privacy', '_blank') },
+            { label: 'Terms of Service', action: () => window.open('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/', '_blank') }
           ].map(({ label, action }) => (
             <button
               key={label}
-              onPointerDown={action}
+              onClick={action}
               className="w-full flex items-center justify-between px-5 py-4"
               style={{
                 borderBottom: '1px solid #111',
@@ -498,7 +503,7 @@ export default function Profile() {
           ))}
 
           <button
-            onPointerDown={logout}
+            onClick={logout}
             className="w-full flex items-center justify-between px-5 py-4"
             style={{ background: '#070707', borderBottom: '1px solid #111', touchAction: 'manipulation' }}
           >
@@ -510,7 +515,7 @@ export default function Profile() {
 
           {/* Delete Account — Apple 5.1.1(v) requirement */}
           <button
-            onPointerDown={() => setShowDeleteModal(true)}
+            onClick={() => setShowDeleteModal(true)}
             className="w-full flex items-center justify-between px-5 py-4"
             style={{ background: '#070707', touchAction: 'manipulation' }}
           >

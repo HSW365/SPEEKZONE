@@ -163,6 +163,7 @@ export default function Discover() {
                 {CREATORS.map((creator, i) => (
                   <button
                     key={creator.name}
+                    onClick={() => setQuery(creator.name)}
                     className="flex-shrink-0 rounded-3xl p-3 text-left active:scale-95"
                     style={{
                       width: 136,

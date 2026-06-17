@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Play, Pause, SkipBack, SkipForward, Mic, Heart, Share2 } from 'lucide-react';
+import { useToast, shareOrCopy } from '../components/Toast';
 
 const MOCK_DETAIL = {
   id: '1',
@@ -23,6 +24,7 @@ export default function PodcastDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const pod = MOCK_DETAIL;
+  const toast = useToast();
 
   const [playingEp, setPlayingEp] = useState<string | null>(null);
   const [liked, setLiked] = useState(false);
@@ -52,7 +54,10 @@ export default function PodcastDetail() {
           <button onClick={() => setLiked(!liked)} className="active:scale-90 transition-transform">
             <Heart size={22} color={liked ? '#ff5252' : '#5a6478'} fill={liked ? '#ff5252' : 'none'} />
           </button>
-          <button className="active:opacity-60">
+          <button
+            onClick={() => shareOrCopy({ title: pod.title, text: `${pod.title} — ${pod.host} on SpeekZone`, url: 'https://speekzone.com' }, toast)}
+            className="active:opacity-60"
+          >
             <Share2 size={20} color="#5a6478" />
           </button>
         </div>

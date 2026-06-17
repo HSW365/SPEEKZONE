@@ -1,21 +1,47 @@
 import React, { useState, useRef } from 'react';
 import { Heart, MessageCircle, Share2, Gift, Music, Play } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { MOCK_CLIPS, Clip } from '../utils/data';
+import { useToast, shareOrCopy } from '../components/Toast';
 
 function ClipCard({ clip }: { clip: Clip }) {
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(clip.likes);
+  const [following, setFollowing] = useState(false);
   const [feedTab, setFeedTab] = useState<'following' | 'foryou' | 'live'>('foryou');
+  const toast = useToast();
+  const navigate = useNavigate();
 
   const fmt = (n: number) =>
     n >= 1000000 ? `${(n / 1000000).toFixed(1)}M` :
     n >= 1000 ? `${(n / 1000).toFixed(1)}K` :
     String(n);
 
-  const handleLike = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
     setLiked(!liked);
     setLikes(liked ? likes - 1 : likes + 1);
+  };
+
+  const handleComment = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast('Comments coming soon');
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    shareOrCopy({ title: 'SpeekZone', text: `Check out @${clip.username} on SpeekZone`, url: 'https://speekzone.com' }, toast);
+  };
+
+  const handleGift = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate('/pricing');
+  };
+
+  const handleFollow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFollowing(f => !f);
+    toast(following ? `Unfollowed @${clip.username}` : `Following @${clip.username}`);
   };
 
   return (
@@ -119,7 +145,7 @@ function ClipCard({ clip }: { clip: Clip }) {
             return (
               <button
                 key={t}
-                onPointerDown={(e) => { e.stopPropagation(); setFeedTab(t); }}
+                onClick={(e) => { e.stopPropagation(); setFeedTab(t); }}
                 style={{
                   color: active ? '#fff' : 'rgba(255,255,255,.55)',
                   fontWeight: active ? 900 : 700,
@@ -143,7 +169,7 @@ function ClipCard({ clip }: { clip: Clip }) {
       {/* Right action buttons */}
       <div className="absolute right-4 flex flex-col items-center gap-6 z-30" style={{ bottom: 150 }}>
         <button
-          onPointerDown={(e) => { e.stopPropagation(); handleLike(e); }}
+          onClick={handleLike}
           className="flex flex-col items-center gap-1"
           style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
         >
@@ -155,6 +181,7 @@ function ClipCard({ clip }: { clip: Clip }) {
         </button>
 
         <button
+          onClick={handleComment}
           className="flex flex-col items-center gap-1"
           style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
         >
@@ -166,6 +193,7 @@ function ClipCard({ clip }: { clip: Clip }) {
         </button>
 
         <button
+          onClick={handleShare}
           className="flex flex-col items-center gap-1"
           style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
         >
@@ -177,6 +205,7 @@ function ClipCard({ clip }: { clip: Clip }) {
         </button>
 
         <button
+          onClick={handleGift}
           className="flex flex-col items-center gap-1"
           style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
         >
@@ -207,10 +236,17 @@ function ClipCard({ clip }: { clip: Clip }) {
             <span className="rounded-full bg-blue-500 text-white text-xs px-1.5">✓</span>
           )}
           <button
-            className="ml-2 px-3 py-1 rounded-full text-xs font-black border border-white"
-            style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+            onClick={handleFollow}
+            className="ml-2 px-3 py-1 rounded-full text-xs font-black border"
+            style={{
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent',
+              borderColor: following ? 'rgba(255,255,255,.35)' : '#fff',
+              background: following ? 'rgba(255,255,255,.12)' : 'transparent',
+              color: '#fff',
+            }}
           >
-            Follow
+            {following ? 'Following' : 'Follow'}
           </button>
         </div>
 

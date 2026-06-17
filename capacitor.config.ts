@@ -8,8 +8,11 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
   },
   ios: {
-    contentInset: 'always',
-    scrollEnabled: false,
+    // 'never' — the app already pads every screen manually via env(safe-area-inset-*)
+    // in CSS. Leaving this as 'always' double-insets content on iPad's safe-area
+    // geometry, which can desync the rendered layout from the native touch
+    // hit-testing frame (buttons render in place but stop receiving taps).
+    contentInset: 'never',
     backgroundColor: '#0a1628',
   },
   plugins: {

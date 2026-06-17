@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Bell, Mic, Play, Heart, Share2, ChevronRight } from 'lucide-react';
+import { useToast, shareOrCopy } from '../components/Toast';
 
 const MOCK_PODCASTS = [
   { id: '1', title: 'Respect Da Game', host: 'HOODSTAR365', ep: 'Ownership in the Indie Music Era', plays: 4820, duration: '42:18', cover: null },
@@ -13,6 +14,7 @@ const MOCK_PODCASTS = [
 function PodcastCard({ pod }: { pod: typeof MOCK_PODCASTS[0] }) {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
+  const toast = useToast();
   return (
     <div
       className="rounded-2xl p-4 mb-3 active:scale-98 transition-transform"
@@ -53,7 +55,10 @@ function PodcastCard({ pod }: { pod: typeof MOCK_PODCASTS[0] }) {
           <button onClick={() => setLiked(!liked)} className="active:scale-90 transition-transform">
             <Heart size={18} color={liked ? '#ff5252' : '#5a6478'} fill={liked ? '#ff5252' : 'none'} />
           </button>
-          <button className="active:scale-90 transition-transform">
+          <button
+            onClick={(e) => { e.stopPropagation(); shareOrCopy({ title: pod.title, text: `${pod.title} — ${pod.host} on SpeekZone`, url: 'https://speekzone.com' }, toast); }}
+            className="active:scale-90 transition-transform"
+          >
             <Share2 size={18} color="#5a6478" />
           </button>
           <span style={{ color: '#5a6478', fontSize: 12 }}>{pod.plays.toLocaleString()}</span>
@@ -89,7 +94,7 @@ export default function Home() {
                 {user?.plan?.toUpperCase()}
               </span>
             )}
-            <button className="active:opacity-60">
+            <button className="active:opacity-60" onClick={() => navigate('/inbox')}>
               <Bell size={22} color="#9aa3b2" />
             </button>
           </div>

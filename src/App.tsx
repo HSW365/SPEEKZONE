@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Pricing from './pages/Pricing';
 import Splash from './pages/Splash';
+import { ToastProvider } from './components/Toast';
 
 function AppInner() {
   const { user, loading } = useAuth();
@@ -36,9 +37,11 @@ function AppInner() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppInner />
-      </BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>
+          <AppInner />
+        </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   );
 }

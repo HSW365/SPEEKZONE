@@ -36,7 +36,7 @@ export default function BottomNav() {
         return (
           <button
             key={path}
-            onPointerDown={() => navigate(path)}
+            onClick={() => navigate(path)}
             style={{
               flex: 1,
               height: 60,

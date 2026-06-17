@@ -126,9 +126,9 @@ export default function Pricing() {
         <div className="pb-6 px-2 text-center" style={{ color: '#333', fontSize: 11, lineHeight: 1.6 }}>
           <p className="mb-2">Payment charged to your Apple ID at confirmation. Subscriptions auto-renew unless cancelled 24 hours before period end.</p>
           <p>
-            <button style={{ color: '#2196f3' }}>Privacy Policy</button>
+            <a href="https://speekzone.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#2196f3' }}>Privacy Policy</a>
             {' · '}
-            <button style={{ color: '#2196f3' }}>Terms of Use</button>
+            <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener noreferrer" style={{ color: '#2196f3' }}>Terms of Use</a>
           </p>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ChevronLeft, Send, Phone, Video, MoreHorizontal, Search } from 'lucide-react';
+import { useToast } from '../components/Toast';
 
 const THREADS = [
   { id: '1', name: 'CreatorKing',    lastMsg: 'Your clip goes hard bro 🔥',          time: '2m',  unread: 3, online: true },
@@ -36,6 +37,7 @@ function ChatScreen({ threadId, name, online, onBack }: {
   const [messages, setMessages] = useState(MOCK_MESSAGES[threadId] ?? []);
   const [msg, setMsg] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
+  const toast = useToast();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -75,9 +77,9 @@ function ChatScreen({ threadId, name, online, onBack }: {
             <p style={{ color: online ? '#00e676' : '#555', fontSize: 12 }}>{online ? 'Active now' : 'Offline'}</p>
           </div>
         </div>
-        <button className="active:opacity-60"><Phone size={20} color="#888" /></button>
-        <button className="active:opacity-60"><Video size={20} color="#888" /></button>
-        <button className="active:opacity-60"><MoreHorizontal size={20} color="#888" /></button>
+        <button className="active:opacity-60" onClick={() => toast('Voice calls coming soon')}><Phone size={20} color="#888" /></button>
+        <button className="active:opacity-60" onClick={() => toast('Video calls coming soon')}><Video size={20} color="#888" /></button>
+        <button className="active:opacity-60" onClick={() => toast('More options coming soon')}><MoreHorizontal size={20} color="#888" /></button>
       </div>
 
       {/* Messages */}

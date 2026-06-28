@@ -125,3 +125,4 @@ export const PLANS = [
     features: ['Everything in Creator','Live rooms access','Revenue share program','Priority in Discover feed','Dedicated support','Exclusive Pro badge'],
   },
 ];
+

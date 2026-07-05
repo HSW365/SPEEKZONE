@@ -1,223 +1,116 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { ChevronLeft, Send, Phone, Video, MoreHorizontal, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, MessageSquarePlus } from 'lucide-react';
+import { CHATS, avatarColor } from '../utils/rooms';
 import { useToast } from '../components/Toast';
 
-const THREADS = [
-  { id: '1', name: 'CreatorKing',    lastMsg: 'Your clip goes hard bro 🔥',          time: '2m',  unread: 3, online: true },
-  { id: '2', name: 'EntrepreneurTV', lastMsg: 'Want to collab on something?',          time: '15m', unread: 1, online: true },
-  { id: '3', name: 'AliTorres',      lastMsg: 'Followed you back!',                    time: '1h',  unread: 0, online: false },
-  { id: '4', name: 'DevKing',        lastMsg: 'Check out my new clip',                 time: '3h',  unread: 0, online: false },
-  { id: '5', name: 'WellnessCoach',  lastMsg: 'Thanks for the gift 🙏',               time: '1d',  unread: 0, online: false },
-  { id: '6', name: 'SpeekZone',      lastMsg: 'Welcome to SpeekZone! 🎉',             time: '2d',  unread: 0, online: true },
-];
-
-const MOCK_MESSAGES: Record<string, { id: string; text: string; mine: boolean; time: string }[]> = {
-  '1': [
-    { id: '1', text: 'Yo just heard your latest clip!', mine: false, time: '10:24' },
-    { id: '2', text: 'Thanks man 🔥 been working on it', mine: true, time: '10:25' },
-    { id: '3', text: 'The waveform visuals are crazy', mine: false, time: '10:25' },
-    { id: '4', text: 'SpeekZone different bro', mine: false, time: '10:26' },
-    { id: '5', text: 'Your clip goes hard bro 🔥', mine: false, time: '10:30' },
-  ],
-  '2': [
-    { id: '1', text: 'Hey! Love your content', mine: false, time: '9:00' },
-    { id: '2', text: 'Want to collab on something?', mine: false, time: '9:01' },
-  ],
-  '6': [
-    { id: '1', text: 'Welcome to SpeekZone! 🎉', mine: false, time: 'Yesterday' },
-    { id: '2', text: 'Start recording your first clip and grow your audience.', mine: false, time: 'Yesterday' },
-  ],
-};
-
-function ChatScreen({ threadId, name, online, onBack }: {
-  threadId: string; name: string; online: boolean; onBack: () => void;
-}) {
-  const { user } = useAuth();
-  const [messages, setMessages] = useState(MOCK_MESSAGES[threadId] ?? []);
-  const [msg, setMsg] = useState('');
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const toast = useToast();
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const send = () => {
-    if (!msg.trim()) return;
-    setMessages(m => [...m, { id: Date.now().toString(), text: msg.trim(), mine: true, time: 'Now' }]);
-    setMsg('');
-    // Simulate reply
-    setTimeout(() => {
-      setMessages(m => [...m, { id: Date.now().toString() + 'r', text: '👍', mine: false, time: 'Now' }]);
-    }, 1200);
-  };
-
+function ChatAvatar({ name, online, team }: { name: string; online: boolean; team?: boolean }) {
   return (
-    <div className="flex flex-col h-full" style={{ background: '#000' }}>
-      {/* Header */}
-      <div className="pt-safe flex-shrink-0 px-4 py-3 flex items-center gap-3"
-        style={{ background: '#000', borderBottom: '1px solid #111' }}>
-        <button onClick={onBack} className="active:opacity-60">
-          <ChevronLeft size={24} color="#fff" />
-        </button>
-        <div className="flex items-center gap-3 flex-1">
-          <div className="relative">
-            <div className="rounded-full flex items-center justify-center"
-              style={{ width: 40, height: 40, background: 'linear-gradient(135deg,#1565c0,#2196f3)', fontSize: 16, fontWeight: 900 }}>
-              {name[0]}
-            </div>
-            {online && (
-              <div className="absolute bottom-0 right-0 rounded-full"
-                style={{ width: 12, height: 12, background: '#00e676', border: '2px solid #000' }} />
-            )}
-          </div>
-          <div>
-            <p style={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>@{name}</p>
-            <p style={{ color: online ? '#00e676' : '#555', fontSize: 12 }}>{online ? 'Active now' : 'Offline'}</p>
-          </div>
-        </div>
-        <button className="active:opacity-60" onClick={() => toast('Voice calls coming soon')}><Phone size={20} color="#888" /></button>
-        <button className="active:opacity-60" onClick={() => toast('Video calls coming soon')}><Video size={20} color="#888" /></button>
-        <button className="active:opacity-60" onClick={() => toast('More options coming soon')}><MoreHorizontal size={20} color="#888" /></button>
+    <div className="relative flex-shrink-0">
+      <div
+        className="rounded-full flex items-center justify-center"
+        style={{
+          width: 50, height: 50,
+          background: team ? 'linear-gradient(135deg,#3b82f6,#1d63e8)' : avatarColor(name),
+          color: '#fff', fontWeight: 800, fontSize: 20,
+        }}
+      >
+        {team ? 'S' : name[0]}
       </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
-        {messages.map(m => (
-          <div key={m.id} className={`flex ${m.mine ? 'justify-end' : 'justify-start'}`}>
-            {!m.mine && (
-              <div className="rounded-full flex items-center justify-center flex-shrink-0 mr-2 self-end"
-                style={{ width: 28, height: 28, background: '#2196f3', fontSize: 12, fontWeight: 900 }}>
-                {name[0]}
-              </div>
-            )}
-            <div className="max-w-xs px-4 py-2.5 rounded-2xl"
-              style={{
-                background: m.mine ? '#2196f3' : '#1a1a1a',
-                borderBottomRightRadius: m.mine ? 4 : 18,
-                borderBottomLeftRadius: m.mine ? 18 : 4,
-              }}>
-              <p style={{ color: '#fff', fontSize: 15, lineHeight: 1.4 }}>{m.text}</p>
-              <p style={{ color: m.mine ? 'rgba(255,255,255,0.6)' : '#555', fontSize: 11, marginTop: 2, textAlign: m.mine ? 'right' : 'left' }}>{m.time}</p>
-            </div>
-          </div>
-        ))}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Input */}
-      <div className="flex-shrink-0 px-4 py-3 pb-safe flex items-center gap-3"
-        style={{ background: '#000', borderTop: '1px solid #111' }}>
-        <input
-          value={msg} onChange={e => setMsg(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder="Message..."
-          className="flex-1 px-4 py-3 rounded-full text-white text-sm"
-          style={{ background: '#111', border: '1px solid #222' }} />
-        <button onClick={send}
-          className="flex items-center justify-center rounded-full flex-shrink-0 active:scale-90 transition-transform"
-          style={{ width: 44, height: 44, background: msg.trim() ? '#2196f3' : '#111', border: '1px solid #222' }}>
-          <Send size={18} color={msg.trim() ? '#fff' : '#555'} />
-        </button>
-      </div>
+      {online && (
+        <span
+          className="absolute rounded-full"
+          style={{
+            width: 13, height: 13, right: 0, bottom: 1,
+            background: '#22c55e', border: '2.5px solid #fff',
+          }}
+        />
+      )}
     </div>
   );
 }
 
 export default function Inbox() {
-  const [activeThread, setActiveThread] = useState<typeof THREADS[0] | null>(null);
-  const [search, setSearch] = useState('');
+  const [query, setQuery] = useState('');
+  const toast = useToast();
 
-  if (activeThread) {
-    return (
-      <ChatScreen
-        threadId={activeThread.id}
-        name={activeThread.name}
-        online={activeThread.online}
-        onBack={() => setActiveThread(null)}
-      />
-    );
-  }
-
-  const filtered = THREADS.filter(t =>
-    !search || t.name.toLowerCase().includes(search.toLowerCase())
+  const filtered = CHATS.filter(c =>
+    c.name.toLowerCase().includes(query.toLowerCase()) ||
+    c.message.toLowerCase().includes(query.toLowerCase())
   );
-  const totalUnread = THREADS.reduce((s, t) => s + t.unread, 0);
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#000' }}>
-      <div className="pt-safe flex-shrink-0 px-5 pb-3" style={{ borderBottom: '1px solid #111' }}>
-        <div className="flex items-center justify-between py-3">
-          <h1 style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 28, color: '#fff' }}>Messages</h1>
-          {totalUnread > 0 && (
-            <div className="rounded-full px-2.5 py-1" style={{ background: '#2196f3' }}>
-              <span style={{ color: '#fff', fontSize: 12, fontWeight: 800 }}>{totalUnread}</span>
-            </div>
-          )}
+    <div className="h-full flex flex-col" style={{ background: '#fff' }}>
+      {/* Header */}
+      <div
+        className="px-5"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 20px) + 10px)', paddingBottom: 8 }}
+      >
+        <div className="flex items-center justify-between">
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: '#0e1726' }}>Chats</h1>
+          <button
+            onClick={() => toast('New chat coming soon')}
+            className="rounded-full flex items-center justify-center"
+            style={{
+              width: 38, height: 38, background: '#f1f5f9',
+              touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            <MessageSquarePlus size={19} color="#1e6ff2" />
+          </button>
         </div>
-        <div className="relative">
-          <Search size={16} color="#555" className="absolute left-4 top-3.5" />
-          <input value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search messages"
-            className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white"
-            style={{ background: '#111', border: '1px solid #222' }} />
+
+        {/* Search */}
+        <div
+          className="flex items-center gap-2 rounded-2xl px-4 mt-3"
+          style={{ background: '#f1f5f9', height: 42 }}
+        >
+          <Search size={17} color="#94a3b8" />
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search"
+            className="flex-1 bg-transparent outline-none"
+            style={{ fontSize: 14, color: '#0e1726' }}
+          />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        {/* Online now */}
-        <div className="px-5 py-4">
-          <p style={{ color: '#555', fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', marginBottom: 12 }}>ACTIVE NOW</p>
-          <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
-            {THREADS.filter(t => t.online).map(t => (
-              <button key={t.id} onClick={() => setActiveThread(t)}
-                className="flex flex-col items-center flex-shrink-0 active:opacity-70">
-                <div className="relative mb-1">
-                  <div className="rounded-full flex items-center justify-center"
-                    style={{ width: 52, height: 52, background: 'linear-gradient(135deg,#1565c0,#2196f3)', fontSize: 20, fontWeight: 900, color: '#fff' }}>
-                    {t.name[0]}
-                  </div>
-                  <div className="absolute bottom-0 right-0 rounded-full"
-                    style={{ width: 14, height: 14, background: '#00e676', border: '2px solid #000' }} />
-                </div>
-                <span style={{ color: '#888', fontSize: 11 }}>{t.name.split(' ')[0]}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ borderTop: '1px solid #111' }}>
-          {filtered.map(t => (
-            <button key={t.id} onClick={() => setActiveThread(t)}
-              className="w-full flex items-center gap-4 px-5 py-4 active:bg-white/5 text-left"
-              style={{ borderBottom: '1px solid #0a0a0a' }}>
-              <div className="relative flex-shrink-0">
-                <div className="rounded-full flex items-center justify-center"
-                  style={{ width: 52, height: 52, background: 'linear-gradient(135deg,#1565c0,#2196f3)', fontSize: 20, fontWeight: 900, color: '#fff' }}>
-                  {t.name[0]}
-                </div>
-                {t.online && (
-                  <div className="absolute bottom-0 right-0 rounded-full"
-                    style={{ width: 14, height: 14, background: '#00e676', border: '2px solid #000' }} />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-0.5">
-                  <span style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>@{t.name}</span>
-                  <span style={{ color: '#555', fontSize: 12 }}>{t.time}</span>
-                </div>
-                <p className="truncate" style={{ color: t.unread ? '#ccc' : '#555', fontSize: 13 }}>{t.lastMsg}</p>
-              </div>
-              {t.unread > 0 && (
-                <div className="rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ width: 22, height: 22, background: '#2196f3', fontSize: 11, fontWeight: 800, color: '#fff' }}>
-                  {t.unread}
-                </div>
+      {/* Chat list */}
+      <div className="flex-1 overflow-y-auto px-3 pt-2 pb-4">
+        {filtered.map(chat => (
+          <button
+            key={chat.id}
+            onClick={() => toast(`Chat with ${chat.name} coming soon`)}
+            className="flex items-center gap-3 w-full text-left rounded-2xl px-2 py-3"
+            style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+          >
+            <ChatAvatar name={chat.name} online={chat.online} team={chat.team} />
+            <div className="flex-1 min-w-0">
+              <div style={{ fontWeight: 800, fontSize: 15, color: '#0e1726' }}>{chat.name}</div>
+              <div className="truncate" style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>{chat.message}</div>
+            </div>
+            <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+              <span style={{ fontSize: 11, color: '#94a3b8' }}>{chat.time}</span>
+              {chat.unread > 0 && (
+                <span
+                  className="rounded-full flex items-center justify-center"
+                  style={{
+                    minWidth: 19, height: 19, padding: '0 5px',
+                    background: '#1e6ff2', color: '#fff', fontSize: 11, fontWeight: 800,
+                  }}
+                >
+                  {chat.unread}
+                </span>
               )}
-            </button>
-          ))}
-        </div>
+            </div>
+          </button>
+        ))}
+
+        {filtered.length === 0 && (
+          <div className="text-center mt-16" style={{ color: '#94a3b8', fontSize: 14 }}>
+            No chats found
+          </div>
+        )}
       </div>
     </div>
   );

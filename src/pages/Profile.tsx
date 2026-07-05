@@ -1,534 +1,233 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MoreHorizontal, MessageCircle, Users, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import {
-  Settings,
-  Grid,
-  Heart,
-  Play,
-  ChevronRight,
-  LogOut,
-  Coins,
-  Sparkles,
-  ShieldCheck,
-  BarChart3,
-  Video,
-  Crown,
-  Trash2,
-  AlertTriangle,
-  X,
-  CheckCircle
-} from 'lucide-react';
-import { MOCK_CLIPS } from '../utils/data';
-import { useToast } from '../components/Toast';
+import { ROOMS, avatarColor } from '../utils/rooms';
+import { useToast, shareOrCopy } from '../components/Toast';
 
-function DeleteAccountModal({ onClose, onConfirm }: { onClose: () => void; onConfirm: () => void }) {
-  const [step, setStep] = useState<'confirm' | 'deleting' | 'done'>('confirm');
-  const [inputVal, setInputVal] = useState('');
+export default function Profile() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const toast = useToast();
+  const [tab, setTab] = useState<'rooms' | 'about' | 'connections'>('rooms');
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleDelete = async () => {
-    setStep('deleting');
-    await onConfirm();
-    setStep('done');
+  const displayName = user?.username || 'speaker';
+  const handle = `@${displayName.toLowerCase()}.speaks`;
+  const liveRooms = ROOMS.filter(r => r.live);
+
+  const handleShare = () => {
+    shareOrCopy(
+      { title: 'SpeekZone', text: `Follow ${handle} on SpeekZone`, url: 'https://speekzone.com' },
+      toast
+    );
   };
 
-  if (step === 'done') {
-    return (
-      <div
-        className="fixed inset-0 flex items-center justify-center z-50"
-        style={{ background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(12px)' }}
-      >
-        <div
-          className="mx-5 rounded-3xl p-8 text-center"
-          style={{ background: '#0d0d0d', border: '1px solid rgba(255,255,255,.1)', maxWidth: 380, width: '100%' }}
-        >
-          <CheckCircle size={56} color="#00eaff" className="mx-auto mb-4" />
-          <h2 className="text-white font-black text-xl mb-2">Account Deleted</h2>
-          <p className="text-white/55 text-sm">Your account and all associated data have been permanently removed.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (step === 'deleting') {
-    return (
-      <div
-        className="fixed inset-0 flex items-center justify-center z-50"
-        style={{ background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(12px)' }}
-      >
-        <div
-          className="mx-5 rounded-3xl p-8 text-center"
-          style={{ background: '#0d0d0d', border: '1px solid rgba(255,255,255,.1)', maxWidth: 380, width: '100%' }}
-        >
-          <div
-            className="mx-auto mb-4 rounded-full"
-            style={{
-              width: 56,
-              height: 56,
-              border: '3px solid #ff0055',
-              borderTopColor: 'transparent',
-              animation: 'spin 0.8s linear infinite',
-            }}
-          />
-          <h2 className="text-white font-black text-xl mb-2">Deleting Account...</h2>
-          <p className="text-white/55 text-sm">Permanently removing your data.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(12px)' }}
-    >
+    <div className="h-full overflow-y-auto" style={{ background: '#fff' }}>
+      {/* Top bar */}
       <div
-        className="mx-5 rounded-3xl overflow-hidden"
-        style={{ background: '#0d0d0d', border: '1px solid rgba(255,255,255,.1)', maxWidth: 380, width: '100%' }}
+        className="flex items-center justify-end px-4 relative"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 20px) + 8px)', paddingBottom: 4 }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid rgba(255,255,255,.07)' }}>
-          <div className="flex items-center gap-3">
-            <div
-              className="rounded-2xl flex items-center justify-center"
-              style={{ width: 44, height: 44, background: 'rgba(255,0,85,.15)', border: '1px solid rgba(255,0,85,.3)' }}
-            >
-              <AlertTriangle size={22} color="#ff0055" />
-            </div>
-            <div>
-              <h2 className="text-white font-black text-lg leading-tight">Delete Account</h2>
-              <p className="text-white/40 text-xs">This cannot be undone</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
+        <button
+          onClick={() => setMenuOpen(o => !o)}
+          className="rounded-full flex items-center justify-center"
+          style={{
+            width: 38, height: 38, background: '#f1f5f9',
+            touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
+          }}
+        >
+          <MoreHorizontal size={20} color="#0e1726" />
+        </button>
+
+        {menuOpen && (
+          <div
+            className="absolute rounded-2xl overflow-hidden"
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 18,
-              background: 'rgba(255,255,255,.08)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              touchAction: 'manipulation',
+              top: 'calc(env(safe-area-inset-top, 20px) + 50px)',
+              right: 16, zIndex: 50,
+              background: '#fff',
+              boxShadow: '0 8px 30px rgba(15,40,105,.18)',
+              border: '1px solid #e2e8f0',
             }}
           >
-            <X size={18} color="#fff" />
-          </button>
-        </div>
+            <button
+              onClick={() => { setMenuOpen(false); logout(); }}
+              className="flex items-center gap-2 px-4 py-3 w-full"
+              style={{
+                color: '#ef4444', fontWeight: 700, fontSize: 14,
+                touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              <LogOut size={16} /> Log out
+            </button>
+          </div>
+        )}
+      </div>
 
-        {/* Body */}
-        <div className="px-6 py-5">
-          <p className="text-white/70 text-sm leading-relaxed mb-5">
-            Permanently deleting your account will remove:
-          </p>
-
-          {['Your profile and username', 'All posts, clips, and content', 'Followers and following lists', 'Coins, gifts, and earnings', 'All account data and history'].map((item) => (
-            <div key={item} className="flex items-center gap-3 mb-3">
-              <div style={{ width: 6, height: 6, borderRadius: 3, background: '#ff0055', flexShrink: 0 }} />
-              <span className="text-white/60 text-sm">{item}</span>
-            </div>
-          ))}
-
-          <p className="text-white/70 text-sm mt-5 mb-3">
-            Type <span className="text-white font-black">DELETE</span> to confirm:
-          </p>
-
-          <input
-            type="text"
-            value={inputVal}
-            onChange={(e) => setInputVal(e.target.value)}
-            placeholder="Type DELETE"
-            className="w-full px-4 py-3 rounded-2xl text-white text-sm font-bold outline-none"
+      {/* Identity */}
+      <div className="flex flex-col items-center px-6">
+        <div className="relative">
+          <div
+            className="rounded-full flex items-center justify-center"
             style={{
-              background: 'rgba(255,255,255,.06)',
-              border: `1px solid ${inputVal === 'DELETE' ? '#ff0055' : 'rgba(255,255,255,.12)'}`,
-              letterSpacing: 1,
+              width: 96, height: 96,
+              background: avatarColor(displayName),
+              color: '#fff', fontWeight: 900, fontSize: 38,
+              border: '3px solid #fff',
+              boxShadow: '0 4px 18px rgba(15,40,105,.15)',
+            }}
+          >
+            {displayName[0].toUpperCase()}
+          </div>
+          <span
+            className="absolute rounded-full"
+            style={{
+              width: 18, height: 18, right: 4, bottom: 4,
+              background: '#f59e0b', border: '3px solid #fff',
             }}
           />
+        </div>
+
+        <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0e1726', marginTop: 12 }}>{displayName}</h1>
+        <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>{handle}</div>
+        <p className="text-center" style={{ fontSize: 13, color: '#475569', marginTop: 8, maxWidth: 260 }}>
+          Love conversations that matter. Let's talk!
+        </p>
+
+        {/* Stats */}
+        <div className="flex gap-10 mt-5">
+          {[
+            { label: 'Rooms', value: '128' },
+            { label: 'Followers', value: '2.4K' },
+            { label: 'Following', value: '980' },
+          ].map(s => (
+            <div key={s.label} className="text-center">
+              <div style={{ fontSize: 17, fontWeight: 900, color: '#0e1726' }}>{s.value}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 1 }}>{s.label}</div>
+            </div>
+          ))}
         </div>
 
         {/* Actions */}
-        <div className="px-6 pb-6 flex gap-3">
+        <div className="flex gap-3 mt-5 w-full max-w-xs">
           <button
-            onClick={onClose}
-            className="flex-1 py-4 rounded-2xl font-black text-sm"
+            onClick={handleShare}
+            className="flex-1 rounded-2xl py-3"
             style={{
-              background: 'rgba(255,255,255,.07)',
-              color: '#fff',
-              touchAction: 'manipulation',
+              background: '#1e6ff2', color: '#fff', fontWeight: 900, fontSize: 14,
+              touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
             }}
           >
-            Cancel
+            Share Profile
           </button>
           <button
-            onClick={() => { if (inputVal === 'DELETE') handleDelete(); }}
-            className="flex-1 py-4 rounded-2xl font-black text-sm"
+            onClick={() => navigate('/inbox')}
+            className="rounded-2xl flex items-center justify-center"
             style={{
-              background: inputVal === 'DELETE' ? '#ff0055' : 'rgba(255,0,85,.2)',
-              color: inputVal === 'DELETE' ? '#fff' : 'rgba(255,255,255,.3)',
-              touchAction: 'manipulation',
-              transition: 'all 0.2s',
+              width: 52, background: '#f1f5f9',
+              touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
             }}
           >
-            Delete Forever
+            <MessageCircle size={19} color="#1e6ff2" />
           </button>
         </div>
       </div>
-    </div>
-  );
-}
 
-export default function Profile() {
-  const { user, logout, deleteAccount } = useAuth();
-  const navigate = useNavigate();
-  const [tab, setTab] = useState<'clips' | 'liked' | 'ai'>('clips');
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const toast = useToast();
-  const settingsRef = React.useRef<HTMLDivElement>(null);
-
-  const fmt = (n: number) =>
-    n >= 1000000 ? `${(n / 1000000).toFixed(1)}M` :
-    n >= 1000 ? `${(n / 1000).toFixed(1)}K` :
-    String(n);
-
-  const plan = user?.plan ?? 'free';
-  const planColor = plan === 'pro' ? '#ff0055' : plan === 'creator' ? '#00eaff' : '#777';
-
-  const handleDeleteConfirm = async () => {
-    await deleteAccount();
-  };
-
-  return (
-    <div className="h-full bg-black text-white flex flex-col">
-      {showDeleteModal && (
-        <DeleteAccountModal
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={handleDeleteConfirm}
-        />
-      )}
-
-      <div
-        className="pt-safe flex-shrink-0"
-        style={{
-          background:
-            'radial-gradient(circle at 20% 0%, rgba(0,234,255,.22), transparent 28%), radial-gradient(circle at 85% 20%, rgba(255,0,85,.18), transparent 30%), #000',
-          borderBottom: '1px solid rgba(255,255,255,.08)'
-        }}
-      >
-        <div className="flex items-center justify-between px-5 py-4">
-          <h1 style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 24 }}>
-            @{user?.username || 'hoodstar365'}
-          </h1>
-
-          <button
-            onClick={() => settingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-            className="rounded-full flex items-center justify-center"
-            style={{
-              width: 40,
-              height: 40,
-              background: 'rgba(255,255,255,.08)',
-              border: '1px solid rgba(255,255,255,.1)',
-              touchAction: 'manipulation',
-            }}
-          >
-            <Settings size={21} color="#fff" />
-          </button>
-        </div>
-
-        <div className="px-5 pb-5">
-          <div className="flex items-center gap-5">
-            <div
-              className="relative rounded-full flex items-center justify-center flex-shrink-0"
-              style={{
-                width: 92,
-                height: 92,
-                background: 'linear-gradient(135deg,#00eaff,#ff0055)',
-                boxShadow: '0 0 45px rgba(0,234,255,.22)',
-                fontSize: 34,
-                fontWeight: 900
-              }}
-            >
-              {user?.name?.[0] || 'H'}
-
-              <div
-                className="absolute -bottom-1 -right-1 rounded-full flex items-center justify-center"
-                style={{
-                  width: 28,
-                  height: 28,
-                  background: '#0b84ff',
-                  border: '3px solid #000'
-                }}
-              >
-                <ShieldCheck size={16} color="#fff" />
-              </div>
-            </div>
-
-            <div className="flex-1 grid grid-cols-3 gap-2">
-              {[
-                { val: fmt(MOCK_CLIPS.length), label: 'Clips' },
-                { val: fmt(user?.followers ?? 12400), label: 'Followers' },
-                { val: fmt(user?.totalLikes ?? 248000), label: 'Likes' }
-              ].map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <p style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 25 }}>
-                    {stat.val}
-                  </p>
-                  <p className="text-white/45 text-xs">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <div className="flex items-center gap-2 mb-1">
-              <p className="font-black text-lg">{user?.name || 'HOODSTAR365'}</p>
-              <span
-                className="px-2 py-0.5 rounded-full text-xs font-black"
-                style={{
-                  color: planColor,
-                  background: `${planColor}22`,
-                  border: `1px solid ${planColor}55`
-                }}
-              >
-                {plan.toUpperCase()}
-              </span>
-            </div>
-
-            <p className="text-white/65 text-sm leading-snug">
-              Creator. Artist. Builder. Powered by SpeekZone AI.
-            </p>
-
-            <div className="flex items-center gap-2 mt-3">
-              <Coins size={16} color="#ffd700" />
-              <span className="text-sm font-bold" style={{ color: '#ffd700' }}>
-                {fmt(user?.coins ?? 2500)} coins
-              </span>
-              <span className="text-white/25">•</span>
-              <span className="text-cyan-300 text-sm font-bold">AI Creator Score 92</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 mt-5">
+      {/* Tabs */}
+      <div className="flex justify-around mt-7 px-6" style={{ borderBottom: '1px solid #e2e8f0' }}>
+        {(['rooms', 'about', 'connections'] as const).map(t => {
+          const active = tab === t;
+          const label = t[0].toUpperCase() + t.slice(1);
+          return (
             <button
-              onClick={() => toast('Profile editing coming soon')}
-              className="py-3 rounded-2xl font-black"
+              key={t}
+              onClick={() => setTab(t)}
               style={{
-                background: '#111',
-                border: '1px solid rgba(255,255,255,.1)',
+                padding: '10px 4px',
+                fontSize: 14,
+                fontWeight: active ? 900 : 700,
+                color: active ? '#1e6ff2' : '#94a3b8',
+                borderBottom: active ? '2.5px solid #1e6ff2' : '2.5px solid transparent',
                 touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent',
               }}
             >
-              Edit Profile
+              {label}
             </button>
-
-            <button
-              onClick={() => navigate('/record')}
-              className="py-3 rounded-2xl font-black"
-              style={{
-                background: 'linear-gradient(90deg,#00eaff,#ff0055)',
-                color: '#fff',
-                touchAction: 'manipulation',
-              }}
-            >
-              Create
-            </button>
-
-            <button
-              onClick={() => navigate('/pricing')}
-              className="py-3 rounded-2xl font-black"
-              style={{
-                background: '#fff',
-                color: '#000',
-                touchAction: 'manipulation',
-              }}
-            >
-              Upgrade
-            </button>
-          </div>
-
-          <div
-            className="mt-5 rounded-3xl p-4"
-            style={{
-              background: 'rgba(255,255,255,.06)',
-              border: '1px solid rgba(255,255,255,.1)',
-              backdropFilter: 'blur(14px)'
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Sparkles color="#00eaff" size={22} />
-                <div>
-                  <p className="font-black text-sm">AI Growth Kit</p>
-                  <p className="text-white/45 text-xs">Captions, scripts, hashtags, analytics</p>
-                </div>
-              </div>
-
-              <button onClick={() => navigate('/record')} style={{ touchAction: 'manipulation' }}>
-                <ChevronRight size={20} color="#777" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex px-5">
-          {[
-            { id: 'clips', label: 'Clips', icon: Grid },
-            { id: 'liked', label: 'Liked', icon: Heart },
-            { id: 'ai', label: 'AI', icon: Sparkles }
-          ].map(({ id, label, icon: Icon }) => {
-            const active = tab === id;
-
-            return (
-              <button
-                key={id}
-                onClick={() => setTab(id as any)}
-                className="flex-1 flex items-center justify-center gap-2 py-3 font-black text-sm"
-                style={{
-                  color: active ? '#fff' : 'rgba(255,255,255,.35)',
-                  borderBottom: active ? '2px solid #fff' : '2px solid transparent',
-                  touchAction: 'manipulation',
-                  WebkitTapHighlightColor: 'transparent',
-                }}
-              >
-                <Icon size={16} />
-                {label}
-              </button>
-            );
-          })}
-        </div>
+          );
+        })}
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        {(tab === 'clips' || tab === 'liked') && (
-          <div className="grid grid-cols-3 gap-1 p-1">
-            {(tab === 'clips' ? MOCK_CLIPS : MOCK_CLIPS.slice(0, 3)).map((clip, index) => (
-              <div
-                key={clip.id}
-                className="relative overflow-hidden"
-                style={{
-                  aspectRatio: '9/16',
-                  background:
-                    index % 3 === 0
-                      ? 'linear-gradient(160deg,#050505,#24002d,#ff0055)'
-                      : index % 3 === 1
-                      ? 'linear-gradient(160deg,#020202,#002833,#00eaff)'
-                      : 'linear-gradient(160deg,#030303,#251500,#ffb000)'
-                }}
-              >
-                <div className="absolute inset-0 flex items-center justify-center opacity-80">
-                  <Video size={30} color="#fff" />
-                </div>
-
-                <div className="absolute left-2 bottom-2 flex items-center gap-1">
-                  <Play size={11} fill="#fff" color="#fff" />
-                  <span className="text-xs font-black">{fmt(clip.likes)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {tab === 'ai' && (
-          <div className="p-5 space-y-4">
-            {[
-              {
-                icon: Sparkles,
-                title: 'AI Caption Generator',
-                desc: 'Turn your idea into viral-ready captions.'
-              },
-              {
-                icon: BarChart3,
-                title: 'Creator Analytics',
-                desc: 'Track growth, engagement, likes, and watch time.'
-              },
-              {
-                icon: Crown,
-                title: 'Monetization Tools',
-                desc: 'Gifts, coins, subscriptions, and premium content.'
-              }
-            ].map(({ icon: Icon, title, desc }) => (
+      {/* Tab content */}
+      <div className="px-5 pt-4 pb-8">
+        {tab === 'rooms' && (
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <h2 style={{ fontSize: 15, fontWeight: 800, color: '#0e1726' }}>Live Rooms</h2>
               <button
-                key={title}
-                onClick={() => navigate('/record')}
-                className="w-full rounded-3xl p-5 flex items-center gap-4 text-left"
+                onClick={() => navigate('/discover')}
                 style={{
-                  background: '#0b0b0b',
-                  border: '1px solid rgba(255,255,255,.08)',
-                  touchAction: 'manipulation',
+                  fontSize: 13, fontWeight: 700, color: '#1e6ff2',
+                  touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
                 }}
               >
-                <div
-                  className="rounded-2xl flex items-center justify-center"
+                See All
+              </button>
+            </div>
+            <div className="flex flex-col gap-3">
+              {liveRooms.map(room => (
+                <button
+                  key={room.id}
+                  onClick={() => navigate(`/room/${room.id}`)}
+                  className="flex items-center gap-3 rounded-2xl p-3.5 text-left w-full"
                   style={{
-                    width: 54,
-                    height: 54,
-                    background: 'linear-gradient(135deg,rgba(0,234,255,.22),rgba(255,0,85,.2))'
+                    background: '#f8fafc',
+                    border: '1px solid #eef2f7',
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'transparent',
                   }}
                 >
-                  <Icon color="#00eaff" />
-                </div>
-
-                <div className="flex-1">
-                  <p className="font-black">{title}</p>
-                  <p className="text-white/45 text-sm mt-1">{desc}</p>
-                </div>
-
-                <ChevronRight size={18} color="#555" />
-              </button>
-            ))}
-          </div>
+                  <div
+                    className="rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{
+                      width: 44, height: 44, background: avatarColor(room.host),
+                      color: '#fff', fontWeight: 800, fontSize: 17,
+                    }}
+                  >
+                    {room.host[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div style={{ fontWeight: 800, fontSize: 14, color: '#0e1726' }}>{room.name}</div>
+                    <div className="flex items-center gap-1 mt-0.5" style={{ fontSize: 12, color: '#94a3b8' }}>
+                      <Users size={12} /> {room.listeners}
+                    </div>
+                  </div>
+                  <span
+                    className="rounded-full px-2 py-0.5"
+                    style={{ background: '#ff2d3d', color: '#fff', fontSize: 10, fontWeight: 900, letterSpacing: 0.5 }}
+                  >
+                    LIVE
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
         )}
 
-        <div ref={settingsRef} className="mx-4 mt-4 mb-2 rounded-3xl overflow-hidden" style={{ border: '1px solid #111' }}>
-          {[
-            { label: 'Buy Coins', action: () => navigate('/pricing') },
-            { label: 'Manage Subscription', action: () => navigate('/pricing') },
-            { label: 'Privacy Policy', action: () => window.open('https://speekzone.com/privacy', '_blank') },
-            { label: 'Terms of Service', action: () => window.open('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/', '_blank') }
-          ].map(({ label, action }) => (
-            <button
-              key={label}
-              onClick={action}
-              className="w-full flex items-center justify-between px-5 py-4"
-              style={{
-                borderBottom: '1px solid #111',
-                background: '#070707',
-                touchAction: 'manipulation',
-              }}
-            >
-              <span className="text-white/55 text-sm font-bold">{label}</span>
-              <ChevronRight size={16} color="#333" />
-            </button>
-          ))}
+        {tab === 'about' && (
+          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>
+            Hosting rooms on SpeekZone — a global voice community where people talk, listen, and connect in real time.
+            Tap a live room to jump into the conversation.
+          </p>
+        )}
 
-          <button
-            onClick={logout}
-            className="w-full flex items-center justify-between px-5 py-4"
-            style={{ background: '#070707', borderBottom: '1px solid #111', touchAction: 'manipulation' }}
-          >
-            <span className="text-sm font-bold" style={{ color: '#ff5252' }}>
-              Sign Out
-            </span>
-            <LogOut size={16} color="#ff5252" />
-          </button>
-
-          {/* Delete Account — Apple 5.1.1(v) requirement */}
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="w-full flex items-center justify-between px-5 py-4"
-            style={{ background: '#070707', touchAction: 'manipulation' }}
-          >
-            <span className="text-sm font-bold" style={{ color: '#ff3030' }}>
-              Delete Account
-            </span>
-            <Trash2 size={16} color="#ff3030" />
-          </button>
-        </div>
-
-        <p className="text-center text-white/15 text-xs mt-2 pb-6">
-          SpeekZone · AI Creator Network
-        </p>
+        {tab === 'connections' && (
+          <p style={{ fontSize: 14, color: '#94a3b8', textAlign: 'center', marginTop: 24 }}>
+            Connections you make in rooms will appear here.
+          </p>
+        )}
       </div>
     </div>
   );

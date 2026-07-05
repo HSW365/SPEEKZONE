@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Search, PlusSquare, Bell, User } from 'lucide-react';
+import { Home, Users, Plus, MessageCircle, User } from 'lucide-react';
 
 const TABS = [
-  { path: '/',         icon: Home,       label: 'Home'    },
-  { path: '/discover', icon: Search,     label: 'Discover' },
-  { path: '/record',   icon: PlusSquare, label: 'Create'  },
-  { path: '/inbox',    icon: Bell,       label: 'Inbox'   },
-  { path: '/profile',  icon: User,       label: 'Profile' },
+  { path: '/',         icon: Home,          label: 'Home'    },
+  { path: '/discover', icon: Users,         label: 'Rooms'   },
+  { path: '/record',   icon: Plus,          label: ''        },
+  { path: '/inbox',    icon: MessageCircle, label: 'Chats'   },
+  { path: '/profile',  icon: User,          label: 'Profile' },
 ];
 
 export default function BottomNav() {
@@ -17,11 +17,10 @@ export default function BottomNav() {
   return (
     <div
       style={{
-        height: 'calc(60px + env(safe-area-inset-bottom, 0px))',
+        height: 'calc(62px + env(safe-area-inset-bottom, 0px))',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        background: 'rgba(0,0,0,.92)',
-        borderTop: '1px solid rgba(255,255,255,.08)',
-        backdropFilter: 'blur(20px)',
+        background: '#ffffff',
+        borderTop: '1px solid #eef2f7',
         display: 'flex',
         alignItems: 'flex-start',
         position: 'relative',
@@ -39,7 +38,7 @@ export default function BottomNav() {
             onClick={() => navigate(path)}
             style={{
               flex: 1,
-              height: 60,
+              height: 62,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -50,41 +49,29 @@ export default function BottomNav() {
               cursor: 'pointer',
               background: 'transparent',
               border: 'none',
-              outline: 'none',
-              padding: 0,
-              // Larger hit area for iPad
-              minWidth: 44,
-              minHeight: 44,
             }}
           >
             {isCreate ? (
               <div
+                className="rounded-full flex items-center justify-center"
                 style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 14,
-                  background: 'linear-gradient(135deg,#00eaff,#ff0055)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 0 20px rgba(0,234,255,.35)',
+                  width: 46,
+                  height: 46,
+                  background: 'linear-gradient(135deg,#3b82f6,#1d63e8)',
+                  boxShadow: '0 6px 16px rgba(29,99,232,.4)',
+                  marginTop: -14,
                 }}
               >
-                <Icon size={22} color="#fff" strokeWidth={2.5} />
+                <Icon size={24} color="#fff" />
               </div>
             ) : (
               <>
-                <Icon
-                  size={24}
-                  color={active ? '#fff' : 'rgba(255,255,255,.4)'}
-                  strokeWidth={active ? 2.5 : 1.8}
-                />
+                <Icon size={22} color={active ? '#1e6ff2' : '#94a3b8'} />
                 <span
                   style={{
                     fontSize: 10,
-                    fontWeight: active ? 800 : 500,
-                    color: active ? '#fff' : 'rgba(255,255,255,.4)',
-                    letterSpacing: 0.3,
+                    fontWeight: active ? 800 : 600,
+                    color: active ? '#1e6ff2' : '#94a3b8',
                   }}
                 >
                   {label}

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../utils/data';
+import { initPurchases } from '../utils/purchases';
 
 interface AuthContextType {
   user: User | null;
@@ -22,7 +23,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const savedUser = localStorage.getItem(KEY);
       if (savedUser) {
-        setUser(JSON.parse(savedUser));
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
+        initPurchases(parsed.id);
       }
     } catch {}
 
@@ -42,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, _password: string) => {
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    persist({
+    const loggedInUser: User = {
       id: '1',
       name: 'HOODSTAR365',
       username: 'hoodstar365',
@@ -54,13 +57,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       totalLikes: 2400000,
       coins: 5000,
       plan: 'pro',
-    });
+    };
+    persist(loggedInUser);
+    await initPurchases(loggedInUser.id);
   };
 
   const register = async (name: string, email: string, _password: string) => {
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    persist({
+    const newUser: User = {
       id: Date.now().toString(),
       name,
       username: name.toLowerCase().replace(/\s+/g, ''),
@@ -72,7 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       totalLikes: 0,
       coins: 100,
       plan: 'free',
-    });
+    };
+    persist(newUser);
+    await initPurchases(newUser.id);
   };
 
   const logout = () => {

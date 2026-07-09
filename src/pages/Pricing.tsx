@@ -2,21 +2,47 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PLANS } from '../utils/data';
+import { purchasePlan, restorePurchases } from '../utils/purchases';
+import { useToast } from '../components/Toast';
 import { Check, ChevronLeft } from 'lucide-react';
 
 export default function Pricing() {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
   const [loading, setLoading] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState(false);
   const [success, setSuccess] = useState('');
 
-  const handlePurchase = async (planId: string) => {
+  const handlePurchase = async (planId: string, appleProductId: string) => {
     setLoading(planId);
-    await new Promise(r => setTimeout(r, 1500));
-    updateUser({ plan: planId as 'creator' | 'pro' });
-    setSuccess(`${planId.charAt(0).toUpperCase() + planId.slice(1)} activated!`);
-    setTimeout(() => { setSuccess(''); navigate(-1); }, 2000);
-    setLoading(null);
+    try {
+      const newPlan = await purchasePlan(appleProductId);
+      updateUser({ plan: newPlan });
+      setSuccess(`${newPlan.charAt(0).toUpperCase() + newPlan.slice(1)} activated!`);
+      setTimeout(() => { setSuccess(''); navigate(-1); }, 2000);
+    } catch (err: any) {
+      // RevenueCat/StoreKit reports user-initiated cancellation on this flag —
+      // don't show an error toast for that, it's not a failure.
+      if (!err?.userCancelled) {
+        toast(err?.message || 'Purchase failed. Please try again.');
+      }
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleRestore = async () => {
+    setRestoring(true);
+    try {
+      const restoredPlan = await restorePurchases();
+      updateUser({ plan: restoredPlan });
+      toast(restoredPlan === 'free' ? 'No active purchases found' : `${restoredPlan} plan restored`);
+    } catch (err: any) {
+      toast(err?.message || 'Could not restore purchases');
+    } finally {
+      setRestoring(false);
+    }
   };
 
   return (
@@ -109,7 +135,7 @@ export default function Pricing() {
               </div>
               <button
                 disabled={active || !!isLoading}
-                onClick={() => handlePurchase(plan.id)}
+                onClick={() => handlePurchase(plan.id, plan.appleProductId)}
                 className="w-full py-3.5 rounded-xl font-bold text-white transition-opacity active:opacity-80"
                 style={{
                   fontFamily: 'Barlow Condensed', fontSize: 17, letterSpacing: '0.06em',
@@ -124,6 +150,14 @@ export default function Pricing() {
         })}
 
         <div className="pb-6 px-2 text-center" style={{ color: '#333', fontSize: 11, lineHeight: 1.6 }}>
+          <button
+            onClick={handleRestore}
+            disabled={restoring}
+            className="mb-3"
+            style={{ color: '#2196f3', fontSize: 13, fontWeight: 700 }}
+          >
+            {restoring ? 'Restoring…' : 'Restore Purchases'}
+          </button>
           <p className="mb-2">Payment charged to your Apple ID at confirmation. Subscriptions auto-renew unless cancelled 24 hours before period end.</p>
           <p>
             <a href="https://speekzone.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#2196f3' }}>Privacy Policy</a>

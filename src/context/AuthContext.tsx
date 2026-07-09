@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       following: 340,
       totalLikes: 2400000,
       coins: 5000,
-      plan: 'pro',
+      plan: 'verified',
     };
     persist(loggedInUser);
     await initPurchases(loggedInUser.id);

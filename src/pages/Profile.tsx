@@ -4,6 +4,7 @@ import { MoreHorizontal, MessageCircle, Users, LogOut, Trash2 } from 'lucide-rea
 import { useAuth } from '../context/AuthContext';
 import { ROOMS, avatarColor } from '../utils/rooms';
 import { useToast, shareOrCopy } from '../components/Toast';
+import VerifiedBadge from '../components/VerifiedBadge';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -113,7 +114,10 @@ export default function Profile() {
           />
         </div>
 
-        <h1 style={{ fontSize: 22, fontWeight: 900, color: '#0e1726', marginTop: 12 }}>{displayName}</h1>
+        <h1 className="flex items-center gap-1.5" style={{ fontSize: 22, fontWeight: 900, color: '#0e1726', marginTop: 12 }}>
+          {displayName}
+          {user?.plan === 'verified' && <VerifiedBadge size={18} />}
+        </h1>
         <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>{handle}</div>
         <p className="text-center" style={{ fontSize: 13, color: '#475569', marginTop: 8, maxWidth: 260 }}>
           Love conversations that matter. Let's talk!

@@ -10,7 +10,7 @@ export interface User {
   following: number;
   totalLikes: number;
   coins: number;
-  plan: 'free' | 'creator' | 'pro';
+  plan: 'free' | 'verified';
 }
 
 export interface Clip {
@@ -106,15 +106,9 @@ export const TRENDING_TAGS = ['#speekzone','#music','#business','#motivation','#
 
 export const PLANS = [
   {
-    id: 'creator', name: 'CREATOR', price: 9.99,
-    appleProductId: 'com.speekzone.app.creator_monthly',
-    color: '#2196f3',
-    features: ['Upload unlimited clips','Monetize with gifts','Creator analytics','Verified badge eligibility','Custom profile banner'],
-  },
-  {
-    id: 'pro', name: 'PRO', price: 24.99, popular: true,
-    appleProductId: 'com.speekzone.app.pro_monthly',
-    color: '#ff5252',
-    features: ['Everything in Creator','Live rooms access','Revenue share program','Priority in Discover feed','Dedicated support','Exclusive Pro badge'],
+    id: 'verified', name: 'VERIFIED', price: 9.99,
+    appleProductId: 'com.speekzone.app.verified_monthly',
+    color: '#16a34a',
+    features: ['Red/black/green verified checkmark','Creator analytics dashboard','Priority placement in Discover feed','Custom profile banner','Revenue share eligibility on gifts'],
   },
 ];

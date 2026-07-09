@@ -11,32 +11,6 @@ export default function Create() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  if (user?.plan === 'free') {
-    return (
-      <div className="flex flex-col h-full">
-        <div className="pt-safe flex-shrink-0 px-4 pb-2" style={{ background: 'rgba(13,31,60,0.98)', borderBottom: '1px solid rgba(25,118,210,0.2)' }}>
-          <h1 className="py-3" style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 22 }}>Create</h1>
-        </div>
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-          <div className="rounded-2xl flex items-center justify-center mb-5" style={{ width: 80, height: 80, background: 'rgba(25,118,210,0.15)', border: '1px solid rgba(25,118,210,0.3)' }}>
-            <Mic size={36} color="#2196f3" />
-          </div>
-          <h2 style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 26, marginBottom: 10 }}>Upgrade to Create</h2>
-          <p style={{ color: '#9aa3b2', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>
-            A paid plan is required to host and publish podcasts on SpeekZone. Plans start at just $8/month.
-          </p>
-          <button
-            onClick={() => navigate('/pricing')}
-            className="px-8 py-3.5 rounded-xl font-bold text-white"
-            style={{ fontFamily: 'Barlow Condensed', fontSize: 18, letterSpacing: '0.06em', background: 'linear-gradient(135deg,#1565c0,#2196f3)', boxShadow: '0 4px 20px rgba(25,118,210,0.4)' }}
-          >
-            View Plans from $8/mo
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title || !form.description) return;

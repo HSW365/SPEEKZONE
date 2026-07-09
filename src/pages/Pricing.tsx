@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { PLANS } from '../utils/data';
 import { purchasePlan, restorePurchases } from '../utils/purchases';
 import { useToast } from '../components/Toast';
+import VerifiedBadge from '../components/VerifiedBadge';
 import { Check, ChevronLeft } from 'lucide-react';
 
 export default function Pricing() {
@@ -19,7 +20,7 @@ export default function Pricing() {
     try {
       const newPlan = await purchasePlan(appleProductId);
       updateUser({ plan: newPlan });
-      setSuccess(`${newPlan.charAt(0).toUpperCase() + newPlan.slice(1)} activated!`);
+      setSuccess(newPlan === 'verified' ? "You're verified!" : 'Updated!');
       setTimeout(() => { setSuccess(''); navigate(-1); }, 2000);
     } catch (err: any) {
       // RevenueCat/StoreKit reports user-initiated cancellation on this flag —
@@ -37,7 +38,7 @@ export default function Pricing() {
     try {
       const restoredPlan = await restorePurchases();
       updateUser({ plan: restoredPlan });
-      toast(restoredPlan === 'free' ? 'No active purchases found' : `${restoredPlan} plan restored`);
+      toast(restoredPlan === 'free' ? 'No active purchases found' : 'Verified plan restored');
     } catch (err: any) {
       toast(err?.message || 'Could not restore purchases');
     } finally {
@@ -53,7 +54,7 @@ export default function Pricing() {
             <ChevronLeft size={24} color="#888" />
           </button>
           <h1 style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 24, color: '#fff' }}>
-            Choose Your Plan
+            Get Verified
           </h1>
         </div>
       </div>
@@ -67,15 +68,15 @@ export default function Pricing() {
         )}
 
         <p className="text-center mb-6" style={{ color: '#555', fontSize: 14 }}>
-          Grow your audience. Monetize your voice. Cancel anytime.
+          SpeekZone is free — always. Get verified to stand out and unlock creator tools.
         </p>
 
-        {/* Free tier */}
+        {/* Free tier — the whole app, no paywall */}
         <div className="rounded-2xl p-5 mb-4" style={{ background: '#0a0a0a', border: '1px solid #1a1a1a' }}>
           <div className="flex items-center justify-between mb-3">
             <div>
               <h2 style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 24, color: '#555' }}>FREE</h2>
-              <p style={{ color: '#333', fontSize: 14 }}>$0 / month</p>
+              <p style={{ color: '#333', fontSize: 14 }}>$0 / month, forever</p>
             </div>
             {user?.plan === 'free' && (
               <div className="flex items-center gap-1 px-2 py-1 rounded-full"
@@ -85,7 +86,7 @@ export default function Pricing() {
               </div>
             )}
           </div>
-          {['Browse & listen to clips','Follow creators','Leave comments','Send gifts'].map(f => (
+          {['Post clips & host live voice rooms','Follow creators & join rooms','Leave comments','Send gifts'].map(f => (
             <div key={f} className="flex items-center gap-2 mb-2">
               <Check size={14} color="#333" />
               <span style={{ color: '#444', fontSize: 13 }}>{f}</span>
@@ -98,20 +99,13 @@ export default function Pricing() {
           const isLoading = loading === plan.id;
           return (
             <div key={plan.id} className="rounded-2xl p-5 mb-4 relative overflow-hidden"
-              style={{
-                background: '#0a0a0a',
-                border: `${(plan as any).popular ? 2 : 1}px solid ${(plan as any).popular ? plan.color : '#1a1a1a'}`,
-                transform: (plan as any).popular ? 'scale(1.01)' : 'scale(1)',
-              }}>
-              {(plan as any).popular && (
-                <div className="absolute top-0 right-0 px-3 py-1 text-xs font-bold"
-                  style={{ background: plan.color, color: '#fff', borderBottomLeftRadius: 12, fontFamily: 'Barlow Condensed', letterSpacing: '0.06em' }}>
-                  MOST POPULAR
-                </div>
-              )}
+              style={{ background: '#0a0a0a', border: `1.5px solid ${plan.color}` }}>
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h2 style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 28, color: '#888', lineHeight: 1 }}>{plan.name}</h2>
+                  <div className="flex items-center gap-2">
+                    <VerifiedBadge size={22} />
+                    <h2 style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 28, color: '#eee', lineHeight: 1 }}>{plan.name}</h2>
+                  </div>
                   <div className="flex items-end gap-1 mt-1">
                     <span style={{ fontFamily: 'Barlow Condensed', fontWeight: 900, fontSize: 40, color: plan.color, lineHeight: 1 }}>${plan.price}</span>
                     <span style={{ color: '#444', fontSize: 13, paddingBottom: 5 }}>/mo</span>
@@ -143,7 +137,7 @@ export default function Pricing() {
                   boxShadow: active ? 'none' : `0 4px 20px ${plan.color}40`,
                   opacity: active ? 0.5 : 1,
                 }}>
-                {isLoading ? 'Processing...' : active ? 'Current Plan' : `Subscribe — $${plan.price}/mo`}
+                {isLoading ? 'Processing...' : active ? 'Current Plan' : `Get Verified — $${plan.price}/mo`}
               </button>
             </div>
           );

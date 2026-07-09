@@ -6,7 +6,7 @@ workflows:
 
     environment:
       groups:
-        - hsw365media2
+        - hsw365media
 
       ios_signing:
         distribution_type: app_store

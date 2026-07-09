@@ -1,10 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { Heart, MessageCircle, Share2, Gift, Music, Play } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Gift, Music, Play, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MOCK_CLIPS, Clip } from '../utils/data';
 import { useToast, shareOrCopy } from '../components/Toast';
+import { isBlocked } from '../utils/moderation';
+import ReportBlockSheet from '../components/ReportBlockSheet';
 
-function ClipCard({ clip }: { clip: Clip }) {
+function ClipCard({ clip, onBlocked }: { clip: Clip; onBlocked: () => void }) {
+  const [showReportSheet, setShowReportSheet] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(clip.likes);
   const [following, setFollowing] = useState(false);
@@ -219,6 +222,17 @@ function ClipCard({ clip }: { clip: Clip }) {
           <span className="text-xs font-black">{fmt(clip.gifts)}</span>
         </button>
 
+        <button
+          onClick={(e) => { e.stopPropagation(); setShowReportSheet(true); }}
+          className="flex flex-col items-center gap-1"
+          style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+        >
+          <div className="rounded-full flex items-center justify-center"
+            style={{ width: 44, height: 44, background: 'rgba(0,0,0,.35)', backdropFilter: 'blur(12px)' }}>
+            <MoreHorizontal size={24} color="#fff" />
+          </div>
+        </button>
+
         <div className="rounded-full flex items-center justify-center"
           style={{
             width: 48,
@@ -266,15 +280,26 @@ function ClipCard({ clip }: { clip: Clip }) {
           <span className="truncate">Original Sound - SpeekZone Creators</span>
         </div>
       </div>
+
+      <ReportBlockSheet
+        open={showReportSheet}
+        username={clip.username}
+        targetType="clip"
+        targetId={clip.id}
+        onClose={() => setShowReportSheet(false)}
+        onBlocked={onBlocked}
+      />
     </section>
   );
 }
 
 export default function Feed() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [blockVersion, setBlockVersion] = useState(0);
   const startY = useRef(0);
   const startX = useRef(0);
   const isDragging = useRef(false);
+  const clips = MOCK_CLIPS.filter(c => !isBlocked(c.username));
 
   const handlePointerDown = (e: React.PointerEvent) => {
     // Only track swipe on the background, not on interactive elements
@@ -291,7 +316,7 @@ export default function Feed() {
 
     // Only vertical swipe if more vertical than horizontal
     if (Math.abs(diffY) > 60 && Math.abs(diffY) > diffX * 1.5) {
-      if (diffY > 0 && currentIndex < MOCK_CLIPS.length - 1) {
+      if (diffY > 0 && currentIndex < clips.length - 1) {
         setCurrentIndex(i => i + 1);
       }
       if (diffY < 0 && currentIndex > 0) {
@@ -315,9 +340,9 @@ export default function Feed() {
           transition: 'transform .35s cubic-bezier(.4,0,.2,1)',
         }}
       >
-        {MOCK_CLIPS.map((clip, i) => (
+        {clips.map((clip, i) => (
           <div key={clip.id} style={{ position: 'absolute', top: `${i * 100}%`, left: 0, width: '100%', height: '100%' }}>
-            <ClipCard clip={clip} />
+            <ClipCard clip={clip} onBlocked={() => setBlockVersion(v => v + 1)} />
           </div>
         ))}
       </div>

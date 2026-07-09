@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MoreHorizontal, MessageCircle, Users, LogOut, Trash2 } from 'lucide-react';
+import { MoreHorizontal, MessageCircle, Users, LogOut, Trash2, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ROOMS, avatarColor } from '../utils/rooms';
 import { useToast, shareOrCopy } from '../components/Toast';
@@ -66,10 +66,21 @@ export default function Profile() {
             }}
           >
             <button
+              onClick={() => { setMenuOpen(false); window.location.href = 'mailto:hsw365media@gmail.com?subject=SpeekZone%20Report'; }}
+              className="flex items-center gap-2 px-4 py-3 w-full"
+              style={{
+                color: '#334155', fontWeight: 700, fontSize: 14,
+                touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              <Mail size={16} /> Report a Concern
+            </button>
+            <button
               onClick={() => { setMenuOpen(false); logout(); }}
               className="flex items-center gap-2 px-4 py-3 w-full"
               style={{
                 color: '#ef4444', fontWeight: 700, fontSize: 14,
+                borderTop: '1px solid #f1f5f9',
                 touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
               }}
             >

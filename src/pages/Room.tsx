@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, Mic, MicOff, Hand, Share2, LogOut, Users } from 'lucide-react';
+import { ChevronLeft, Mic, MicOff, Hand, Share2, LogOut, Users, MoreHorizontal } from 'lucide-react';
 import { ROOMS, avatarColor } from '../utils/rooms';
 import { useToast, shareOrCopy } from '../components/Toast';
+import { isBlocked } from '../utils/moderation';
+import ReportBlockSheet from '../components/ReportBlockSheet';
 
 function Avatar({ name, size = 64, ring }: { name: string; size?: number; ring?: boolean }) {
   return (
@@ -24,13 +26,17 @@ function Avatar({ name, size = 64, ring }: { name: string; size?: number; ring?:
   );
 }
 
-function Person({ name, size = 64, role, ring }: { name: string; size?: number; role?: string; ring?: boolean }) {
+function Person({ name, size = 64, role, ring, onClick }: { name: string; size?: number; role?: string; ring?: boolean; onClick?: () => void }) {
   return (
-    <div className="flex flex-col items-center gap-1.5" style={{ width: size + 16 }}>
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center gap-1.5"
+      style={{ width: size + 16, touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+    >
       <Avatar name={name} size={size} ring={ring} />
       <span className="truncate w-full text-center" style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{name}</span>
       {role && <span style={{ fontSize: 10, color: 'rgba(255,255,255,.55)', marginTop: -4 }}>{role}</span>}
-    </div>
+    </button>
   );
 }
 
@@ -39,10 +45,14 @@ export default function Room() {
   const { id } = useParams();
   const toast = useToast();
   const [muted, setMuted] = useState(true);
+  const [reportTarget, setReportTarget] = useState<string | null>(null);
+  const [showRoomMenu, setShowRoomMenu] = useState(false);
+  const [blockVersion, setBlockVersion] = useState(0);
 
   const room = ROOMS.find(r => r.id === id) || ROOMS[0];
-  const listenerNames = ['Ava', 'Ben', 'Cleo', 'Dev'];
-  const extraListeners = Math.max(room.listeners - listenerNames.length - room.speakers.length - 2, 0);
+  const listenerNames = ['Ava', 'Ben', 'Cleo', 'Dev'].filter(n => !isBlocked(n));
+  const visibleSpeakers = room.speakers.filter(s => !isBlocked(s));
+  const extraListeners = Math.max(room.listeners - listenerNames.length - visibleSpeakers.length - 2, 0);
 
   const handleShare = () => {
     shareOrCopy(
@@ -118,15 +128,24 @@ export default function Room() {
             </span>
           </div>
         </div>
-        <div style={{ width: 38 }} />
+        <button
+          onClick={() => setShowRoomMenu(true)}
+          className="rounded-full flex items-center justify-center"
+          style={{
+            width: 38, height: 38, background: 'rgba(255,255,255,.1)',
+            touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
+          }}
+        >
+          <MoreHorizontal size={20} color="#fff" />
+        </button>
       </div>
 
       {/* Stage */}
       <div className="flex-1 overflow-y-auto px-5 pb-4">
         {/* Host + co-host */}
         <div className="flex justify-center gap-8 mt-4">
-          <Person name={room.host} size={76} role={`Host\u00A0· ${room.host}`} ring />
-          {room.coHost && <Person name={room.coHost} size={76} role={`Co-host · ${room.coHost}`} ring />}
+          <Person name={room.host} size={76} role={`Host\u00A0· ${room.host}`} ring onClick={() => setReportTarget(room.host)} />
+          {room.coHost && <Person name={room.coHost} size={76} role={`Co-host · ${room.coHost}`} ring onClick={() => setReportTarget(room.coHost!)} />}
         </div>
 
         {/* Speakers */}
@@ -134,7 +153,7 @@ export default function Room() {
           Speakers
         </div>
         <div className="flex flex-wrap gap-4">
-          {room.speakers.map(s => <Person key={s} name={s} size={60} />)}
+          {visibleSpeakers.map(s => <Person key={s} name={s} size={60} onClick={() => setReportTarget(s)} />)}
         </div>
 
         {/* Listeners */}
@@ -142,7 +161,7 @@ export default function Room() {
           Listeners
         </div>
         <div className="flex flex-wrap gap-4 items-start">
-          {listenerNames.map(l => <Person key={l} name={l} size={52} />)}
+          {listenerNames.map(l => <Person key={l} name={l} size={52} onClick={() => setReportTarget(l)} />)}
           {extraListeners > 0 && (
             <div className="flex flex-col items-center gap-1.5" style={{ width: 68 }}>
               <div
@@ -183,6 +202,28 @@ export default function Room() {
           </button>
         ))}
       </div>
+
+      {reportTarget && (
+        <ReportBlockSheet
+          open
+          username={reportTarget}
+          targetType="user"
+          targetId={reportTarget}
+          onClose={() => setReportTarget(null)}
+          onBlocked={() => setBlockVersion(v => v + 1)}
+        />
+      )}
+
+      {showRoomMenu && (
+        <ReportBlockSheet
+          open
+          username={room.host}
+          targetType="room"
+          targetId={room.id}
+          onClose={() => setShowRoomMenu(false)}
+          onBlocked={() => setBlockVersion(v => v + 1)}
+        />
+      )}
     </div>
   );
 }

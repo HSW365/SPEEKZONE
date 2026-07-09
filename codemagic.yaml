@@ -34,15 +34,6 @@ workflows:
         script: |
           npx cap sync ios
 
-      - name: Add iOS privacy permissions
-        script: |
-          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string SpeekZone needs access to your photo library so you can upload and share photos." App/Info.plist || true
-
-          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string SpeekZone needs access to your camera so you can capture photos and videos." App/Info.plist || true
-
-          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string SpeekZone needs permission to save photos and videos to your library." App/Info.plist || true
-        working_directory: ios/App
-
       - name: Install CocoaPods
         script: |
           pod install

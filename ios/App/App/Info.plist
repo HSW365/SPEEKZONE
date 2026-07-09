@@ -48,5 +48,9 @@
 <key>NSPhotoLibraryUsageDescription</key>
 <string>This app requires access to your photo library to allow you to select and upload profile pictures or share media.</string>
 <key>NSPhotoLibraryAddUsageDescription</key>
-<string>This app requires access to your photo library to save images you create or download.</string></dict>
+<string>This app requires access to your photo library to save images you create or download.</string>
+<key>NSCameraUsageDescription</key>
+<string>SpeekZone needs access to your camera so you can take a profile photo or share photos and videos in the app.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>SpeekZone needs access to your microphone so you can speak in live voice rooms and record audio content.</string></dict>
 </plist>

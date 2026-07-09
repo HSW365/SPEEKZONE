@@ -10,31 +10,19 @@ SpeekZone
 A Global Voice Community
 
 ## DESCRIPTION (4000 chars max)
-SpeekZone is the podcast platform built for indie artists, creators, and entrepreneurs who want to record, distribute, and monetize their voice — without censorship, suppression, or corporate gatekeeping.
+SpeekZone is a live voice community where people talk, listen, and connect in real time — no censorship, no corporate gatekeeping.
 
-RECORD & PUBLISH
-Record episodes directly in the app or upload audio files. Publish with one tap.
+JOIN & HOST LIVE ROOMS
+Drop into live voice rooms on any topic, or host your own in seconds. Choose who can speak — everyone, or invite only.
 
-1-CLICK DISTRIBUTION
-Distribute your show to Apple Podcasts, Spotify, Amazon Music, and 10+ platforms instantly.
+SHARE YOUR VOICE
+Post audio and video clips to your profile. Follow creators, comment, and build your audience.
 
-AI TOOLS
-- AI Clip Generator: Auto-cut your best moments into short clips for TikTok, Reels, and YouTube Shorts
-- AI Show Notes: Auto-transcribe episodes and generate timestamps and SEO descriptions
+SEND & RECEIVE GIFTS
+Support creators you love by sending gifts during live rooms or on their clips.
 
-MONETIZATION
-- Paid subscriptions for your listeners
-- Listener tips and donations
-- Sponsorship marketplace
-- Merch integration
-
-ANALYTICS DASHBOARD
-Track plays, subscribers, download trends, and listener locations across all platforms in one place.
-
-PLANS
-- Basic ($8/month): Podcast hosting, 3-platform distribution, basic analytics, 5 episodes/month
-- Pro ($12/month): Unlimited episodes, 10+ distribution, AI tools, full analytics, monetization
-- Elite ($15/month): Everything in Pro, white-label rights, 5 shows, custom branding
+GET VERIFIED
+SpeekZone is free — always. Upgrade to Verified ($9.99/month) for a red/black/green verification checkmark, creator analytics, priority placement in Discover, a custom profile banner, and gift revenue-share eligibility.
 
 Subscriptions are billed monthly through your Apple ID. Cancel anytime in Apple ID Account Settings.
 
@@ -43,7 +31,7 @@ Built by creators, for creators. SpeekZone is powered by HSW365Media.
 Contact: hsw365media@gmail.com
 
 ## KEYWORDS (100 chars max — comma separated)
-podcast,voice,creator,distribute,monetize,record,audio,indie,music,entrepreneur,show,streaming
+voice,community,live,rooms,talk,creator,social,audio,video,clips,chat,verified
 
 ## SUPPORT URL
 https://speekzone.com/support
@@ -55,39 +43,41 @@ https://speekzone.com
 https://speekzone.com/privacy
 
 ## WHAT'S NEW (version 1.0)
-Initial release. Record, distribute, and monetize your podcast with SpeekZone.
+Initial release. Join or host live voice rooms, share clips, and connect with a global community on SpeekZone.
 
 ## CATEGORIES
-Primary:   Music
-Secondary: Business
+Primary:   Social Networking
+Secondary: Music
 
 ## AGE RATING QUESTIONNAIRE (answer in App Store Connect)
 - Infrequent/Mild Mature/Suggestive Themes: Depends on user content (set as "Frequent/Intense" to be safe)
 - No gambling, no simulated gambling
-- No apps primary purpose is to find locations of licensed/illegal drugs
+- No app primary purpose is to find locations of licensed/illegal drugs
 - No unrestricted web access
 - Users can generate and share content: YES → set 17+
+- App includes live/user-to-user communication (voice rooms, comments, messages): YES
 
-RECOMMENDED RATING: 17+ (user generated content)
+RECOMMENDED RATING: 17+ (user generated content + live user communication)
 
-## IN-APP PURCHASES (create these in App Store Connect → Features → In-App Purchases)
+## IN-APP PURCHASES (create this in App Store Connect → Features → In-App Purchases)
 
-| Reference Name    | Product ID                            | Type       | Price |
-|-------------------|---------------------------------------|------------|-------|
-| Basic Monthly     | com.speekzone.app.basic_monthly       | Auto-Renewable Subscription | $8.99 |
-| Pro Monthly       | com.speekzone.app.pro_monthly         | Auto-Renewable Subscription | $12.99 |
-| Elite Monthly     | com.speekzone.app.elite_monthly       | Auto-Renewable Subscription | $14.99 |
-
-NOTE: Apple rounds to .99 — set $8.99/$12.99/$14.99 in App Store Connect.
-Your app shows $8/$12/$15 (acceptable).
+| Reference Name    | Product ID                              | Type       | Price |
+|--------------------|------------------------------------------|------------|-------|
+| Verified Monthly   | com.speekzone.app.verified_monthly       | Auto-Renewable Subscription | $9.99 |
 
 ## SUBSCRIPTION GROUP
-Name: SpeekZone Creator Plans
-Group Reference Name: speekzone_creator_plans
+Name: SpeekZone Verified
+Group Reference Name: speekzone_verified
 
 ## APP STORE REVIEW NOTES
-- This app is a podcast hosting and distribution platform
-- Users must create an account to access features
-- Test credentials: test@speekzone.com / TestPass123
-- Subscription purchases use Apple In-App Purchase (no external payment links)
-- Content may include user-generated audio; creators are responsible for their content
+- This app is a live voice community / social networking app
+- Free to use — account creation required to post, follow, and join/host rooms
+- The paid tier (Verified, $9.99/mo) only adds a profile checkmark and creator
+  tools (analytics, Discover priority, custom banner, gift revenue share) —
+  it does not gate any core functionality
+- Test credentials: any email + any password logs in (demo auth for review purposes)
+- Subscription purchases use Apple In-App Purchase via RevenueCat (no external
+  payment links or processors)
+- In-app account deletion: Profile → menu icon (top right) → Delete Account
+- Content may include user-generated audio/video; creators are responsible for
+  their content

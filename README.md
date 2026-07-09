@@ -1,12 +1,12 @@
-# SpeekZone iOS — Complete App Store Submission Guide
+# SpeekZone iOS — App Store Submission Guide
 
 ## Stack
-React 18 · TypeScript · Tailwind CSS · Capacitor 5 · Vite
-Bundle ID: com.speekzone.app · iOS 16.0+
+React 18 · TypeScript · Tailwind CSS · Capacitor 5 · Vite · RevenueCat (StoreKit subscriptions)
+Bundle ID: com.speekzone.app · iOS 13.0+
 
 ---
 
-## Step 1 — Local Setup (Windows PC)
+## Step 1 — Local Setup
 
 ```bash
 npm install
@@ -14,73 +14,82 @@ npm run build          # builds dist/
 npx cap sync ios       # copies dist/ into ios/
 ```
 
-Commit everything including `ios/` folder to HSW365/speekzone on GitHub.
+Commit everything including the `ios/` folder to HSW365/speekzone on GitHub.
 
 ---
 
 ## Step 2 — Codemagic Setup
 
 1. Go to codemagic.io → your app → **Environment variables**
-2. Add these (encrypted):
+2. Add these (encrypted), group `hsw365media`:
    - `APP_STORE_CONNECT_PRIVATE_KEY` — contents of your .p8 key file
-   - `APP_STORE_CONNECT_KEY_IDENTIFIER` — your Key ID from App Store Connect
-3. Under **Code Signing**:
-   - Upload your Distribution Certificate (.p12 + password)
-   - Upload your App Store Provisioning Profile (.mobileprovision)
-4. In `codemagic.yaml`, update `APP_STORE_APP_ID` with your real app ID from App Store Connect
+   - `APP_STORE_CONNECT_KEY_ID` — your Key ID from App Store Connect
+   - `APP_STORE_CONNECT_ISSUER_ID` — your Issuer ID from App Store Connect
+3. Under **Code Signing**: upload your Distribution Certificate (.p12 + password)
+   and App Store Provisioning Profile (`Speekzone App Store`)
+4. `codemagic.yaml` already targets `APP_STORE_APP_ID: 6758737787` — update if
+   the app ID ever changes
 
 ---
 
 ## Step 3 — App Store Connect Setup
 
-### Create the App
+### Create the App (if not already done)
 1. appstoreconnect.apple.com → My Apps → + → New App
-2. Name: **SpeekZone**
-3. Bundle ID: **com.speekzone.app**
-4. SKU: **speekzone-001**
-5. Primary Language: English
+2. Name: **SpeekZone** · Bundle ID: **com.speekzone.app** · SKU: **speekzone-001**
+3. Primary Language: English
 
-### Set Up In-App Purchases (REQUIRED before submission)
+### Set Up In-App Purchase (REQUIRED before submission)
 Go to Features → In-App Purchases → Create:
 
-| Product ID | Type | Price |
-|---|---|---|
-| com.speekzone.app.basic_monthly | Auto-Renewable Subscription | $8.99 |
-| com.speekzone.app.pro_monthly | Auto-Renewable Subscription | $12.99 |
-| com.speekzone.app.elite_monthly | Auto-Renewable Subscription | $14.99 |
+| Reference Name  | Product ID                          | Type       | Price |
+|------------------|--------------------------------------|------------|-------|
+| Verified Monthly | com.speekzone.app.verified_monthly   | Auto-Renewable Subscription | $9.99 |
 
-Create a Subscription Group named **"SpeekZone Creator Plans"** and add all 3.
+Create a Subscription Group named **"SpeekZone Verified"** and add this product.
+It needs a display name, a description, and a screenshot of the paid tier
+shown in-app (screenshot the Pricing screen).
 
-Each subscription needs:
-- Display Name (e.g. "Basic Plan")
-- Description for App Store
-- Screenshot of the subscription offer shown in app
+Requires an active Paid Apps Agreement + banking/tax info on file in App Store
+Connect before it can go live, even in sandbox testing.
+
+### RevenueCat Setup (REQUIRED — this is what makes purchases actually work)
+1. app.revenuecat.com → create a project → add iOS app (bundle id `com.speekzone.app`)
+2. Attach your App Store Connect API key so RevenueCat can validate receipts
+3. Create an entitlement called `verified`, attach the `com.speekzone.app.verified_monthly`
+   product to it
+4. Add that product to the project's current **Offering**
+5. Copy the public iOS SDK key and paste it into `REVENUECAT_IOS_API_KEY` at
+   the top of `src/utils/purchases.ts`
+
+Until that key is set, the app runs fine but purchases just no-op (logged as
+a console warning) — safe, won't crash, won't block a build.
 
 ### Fill In App Information
 Paste from `APP_STORE_METADATA.md`:
 - Description, Keywords, Support URL, Privacy Policy URL
-- Categories: Music + Business
+- Categories: Social Networking + Music
 - Age Rating: 17+
 
 ---
 
 ## Step 4 — Screenshots
 
-Upload from the `speekzone_screenshots/` folder generated separately:
+Capture fresh screenshots from the **current** app before submitting — the app
+is a live voice community (Home/live rooms, Discover, Create Room, Profile,
+Get Verified), not a podcast platform, so any old screenshot set no longer
+matches the UI and would need to be redone.
 
-| Device | Required Size | Files |
-|---|---|---|
-| iPhone 6.7" (iPhone 15 Pro Max) | 1290×2796 | `*_iPhone_6_7_inch.png` |
-| iPhone 5.5" (iPhone 8 Plus) | 1242×2208 | `*_iPhone_5_5_inch.png` |
-| iPad Pro 12.9" | 2048×2732 | `*_iPad_Pro_12_9.png` |
+Required sizes:
 
-Upload in this order for best presentation:
-1. `01_hero_*` — Your Voice. Your Platform.
-2. `02_discover_*` — Find Your Next Favorite Show
-3. `03_player_*` — Built-in Audio Player
-4. `04_dashboard_*` — Creator Dashboard
-5. `05_pricing_*` — Plans from $8/mo
-6. `06_create_*` — Create Your Podcast
+| Device | Required Size |
+|---|---|
+| iPhone 6.7" (iPhone 15 Pro Max or newer) | 1290×2796 |
+| iPhone 6.5" (iPhone 11 Pro Max / XS Max) | 1242×2688 |
+| iPad Pro 12.9" (only if supporting iPad) | 2048×2732 |
+
+Suggested order: Home/live rooms → Discover → a live Room in session →
+Create Room → Get Verified (Pricing) → Profile.
 
 ---
 
@@ -88,48 +97,32 @@ Upload in this order for best presentation:
 
 ### App Review Notes (paste into App Store Connect)
 ```
-This is a podcast hosting and distribution platform.
+This is a live voice community / social networking app.
 
-Test credentials:
-Email: test@speekzone.com
-Password: TestPass123
+The app is free to use. Account creation is required to post, follow, and
+join or host rooms. The paid tier (Verified, $9.99/mo) only adds a profile
+checkmark and creator tools (analytics, Discover priority, custom banner,
+gift revenue share) — it does not gate any core functionality.
 
-Subscriptions use Apple In-App Purchase only — no external payment links.
-The app requires an account to access features.
-Audio playback works with any audio URL; demo content is shown for review.
+Test credentials: any email + any password logs in (demo auth for review).
+
+Subscriptions use Apple In-App Purchase via RevenueCat only — no external
+payment links or processors.
+
+In-app account deletion: Profile → menu icon (top right) → Delete Account.
 ```
 
 ### Checklist before submitting
-- [ ] Privacy Policy live at speekzone.com/privacy
-- [ ] Support URL live at speekzone.com/support (or mailto link)
-- [ ] All 3 IAP products created and approved in App Store Connect
-- [ ] Screenshots uploaded for all device sizes
-- [ ] App description filled in
-- [ ] Age rating questionnaire completed (recommend 17+)
+- [ ] Privacy Policy live at speekzone.com/privacy (`privacy/index.html` in this repo)
+- [ ] Support URL live at speekzone.com/support (`support/index.html` in this repo)
+- [ ] Verified Monthly IAP product created and approved in App Store Connect
+- [ ] RevenueCat entitlement configured and `REVENUECAT_IOS_API_KEY` set in `src/utils/purchases.ts`
+- [ ] Fresh screenshots taken of the current app UI, uploaded for all device sizes
+- [ ] App description filled in from `APP_STORE_METADATA.md`
+- [ ] Age rating questionnaire completed (17+)
 - [ ] Build uploaded via Codemagic to TestFlight
-- [ ] Tested in TestFlight on real device
-
----
-
-## Step 6 — IAP Integration (Replace mock with real)
-
-Install the Capacitor IAP plugin:
-```bash
-npm install @capacitor-community/in-app-purchases
-npx cap sync ios
-```
-
-Then in `src/pages/Pricing.tsx`, replace the mock purchase handler:
-```typescript
-import { InAppPurchases } from '@capacitor-community/in-app-purchases';
-
-// In handlePurchase():
-await InAppPurchases.purchaseProduct({ productIdentifier: plan.appleProductId });
-// Verify receipt server-side, then update user plan
-```
-
-Your backend verifies the Apple receipt at:
-`https://buy.itunes.apple.com/verifyReceipt`
+- [ ] Tested in TestFlight on a real device — including Delete Account and
+      an actual sandbox purchase of the Verified tier
 
 ---
 
@@ -137,21 +130,15 @@ Your backend verifies the Apple receipt at:
 
 | Reason | How this app avoids it |
 |---|---|
-| External payment links | No Stripe/PayPal links in iOS app. Apple IAP only. |
-| Missing privacy policy | speekzone.com/privacy required, included |
-| No support URL | speekzone.com/support required |
-| IAP subscription missing legal text | Included in Pricing.tsx per Apple guidelines |
-| App doesn't function | All screens work, test credentials provided |
-| Missing screenshots | All 3 device sizes generated at exact dimensions |
-| Wrong age rating | 17+ set for user-generated content |
-
----
-
-## Pricing Notes
-
-- App shows: $8 / $12 / $15
-- App Store charges: $8.99 / $12.99 / $14.99
-- Apple's tier system rounds to .99 — this is expected and accepted
+| External payment processor (Guideline 3.1.1) | RevenueCat/StoreKit only — no Stripe/PayPal in the iOS app |
+| Missing privacy policy | speekzone.com/privacy, accurate to what the app actually does |
+| No support URL | speekzone.com/support with real contact info |
+| Missing account deletion (Guideline 5.1.1v) | In-app Delete Account flow on Profile, with confirmation |
+| Missing Camera/Mic Info.plist keys (Guideline 2.1) | Declared in `ios/App/App/Info.plist` |
+| No Restore Purchases (Guideline 3.1.3b) | Present on the Pricing screen |
+| App doesn't function / broken purchase flow | Real RevenueCat purchase + restore, not a mock |
+| Misleading metadata/screenshots (Guideline 2.3.1/2.3.3) | Metadata and screenshots must match the current voice-community app, not any older concept |
+| Wrong age rating | 17+ set for user-generated content + live user-to-user communication |
 
 ---
 

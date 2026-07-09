@@ -52,5 +52,7 @@
 <key>NSCameraUsageDescription</key>
 <string>SpeekZone needs access to your camera so you can take a profile photo or share photos and videos in the app.</string>
 <key>NSMicrophoneUsageDescription</key>
-<string>SpeekZone needs access to your microphone so you can speak in live voice rooms and record audio content.</string></dict>
+<string>SpeekZone needs access to your microphone so you can speak in live voice rooms and record audio content.</string>
+<key>ITSAppUsesNonExemptEncryption</key>
+<false/></dict>
 </plist>

@@ -1,16 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MoreHorizontal, MessageCircle, Users, LogOut } from 'lucide-react';
+import { MoreHorizontal, MessageCircle, Users, LogOut, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ROOMS, avatarColor } from '../utils/rooms';
 import { useToast, shareOrCopy } from '../components/Toast';
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
   const toast = useToast();
   const [tab, setTab] = useState<'rooms' | 'about' | 'connections'>('rooms');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await deleteAccount();
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
 
   const displayName = user?.username || 'speaker';
   const handle = `@${displayName.toLowerCase()}.speaks`;
@@ -61,6 +73,17 @@ export default function Profile() {
               }}
             >
               <LogOut size={16} /> Log out
+            </button>
+            <button
+              onClick={() => { setMenuOpen(false); setConfirmDelete(true); }}
+              className="flex items-center gap-2 px-4 py-3 w-full"
+              style={{
+                color: '#ef4444', fontWeight: 700, fontSize: 14,
+                borderTop: '1px solid #f1f5f9',
+                touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              <Trash2 size={16} /> Delete Account
             </button>
           </div>
         )}
@@ -229,6 +252,51 @@ export default function Profile() {
           </p>
         )}
       </div>
+
+      {confirmDelete && (
+        <div
+          className="flex items-center justify-center px-6"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(14,23,38,.55)', backdropFilter: 'blur(2px)',
+          }}
+        >
+          <div
+            className="rounded-2xl w-full max-w-xs p-5"
+            style={{ background: '#fff', boxShadow: '0 20px 60px rgba(0,0,0,.35)' }}
+          >
+            <h2 style={{ fontSize: 17, fontWeight: 900, color: '#0e1726' }}>Delete your account?</h2>
+            <p style={{ fontSize: 13.5, color: '#64748b', marginTop: 8, lineHeight: 1.5 }}>
+              This permanently deletes your profile, rooms, followers, and messages. This can't be undone.
+            </p>
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => setConfirmDelete(false)}
+                disabled={deleting}
+                className="flex-1 rounded-2xl py-3"
+                style={{
+                  background: '#f1f5f9', color: '#0e1726', fontWeight: 800, fontSize: 14,
+                  touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="flex-1 rounded-2xl py-3"
+                style={{
+                  background: '#ef4444', color: '#fff', fontWeight: 800, fontSize: 14,
+                  opacity: deleting ? 0.7 : 1,
+                  touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                {deleting ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

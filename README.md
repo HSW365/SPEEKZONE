@@ -76,9 +76,9 @@ Paste from `APP_STORE_METADATA.md`:
 ## Step 4 — Screenshots
 
 Capture fresh screenshots from the **current** app before submitting — the app
-is a live voice community (Home/live rooms, Discover, Create Room, Profile,
-Get Verified), not a podcast platform, so any old screenshot set no longer
-matches the UI and would need to be redone.
+is a TikTok-style video feed plus live voice rooms (For You feed, Rooms,
+Create Room, Chats, Profile, Get Verified), not a podcast platform, so any old
+screenshot set no longer matches the UI and would need to be redone.
 
 Required sizes:
 
@@ -88,7 +88,7 @@ Required sizes:
 | iPhone 6.5" (iPhone 11 Pro Max / XS Max) | 1242×2688 |
 | iPad Pro 12.9" (only if supporting iPad) | 2048×2732 |
 
-Suggested order: Home/live rooms → Discover → a live Room in session →
+Suggested order: For You feed → Rooms (Discover) → a live Room in session →
 Create Room → Get Verified (Pricing) → Profile.
 
 ---

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Users, Globe, Sparkles, Lock, LucideIcon } from 'lucide-react';
 import { useToast } from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
+import { createRoom } from '../utils/rooms';
 
 function Segmented<T extends string>({
   options, value, onChange,
@@ -41,6 +43,7 @@ function Segmented<T extends string>({
 export default function Record() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { user } = useAuth();
   const [name, setName] = useState('');
   const [topic, setTopic] = useState('');
   const [roomType, setRoomType] = useState<'open' | 'social'>('open');
@@ -51,8 +54,15 @@ export default function Record() {
       toast('Give your room a name first');
       return;
     }
-    toast(`"${name.trim()}" is live!`);
-    navigate('/room/open-talk');
+    const room = createRoom({
+      name,
+      topic,
+      category: roomType === 'social' ? 'Stories' : 'Talk',
+      host: user?.username || 'You',
+      everyoneCanSpeak: whoSpeaks === 'everyone',
+    });
+    toast(`"${room.name}" is live!`);
+    navigate(`/room/${room.id}`);
   };
 
   const inputStyle: React.CSSProperties = {

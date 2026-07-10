@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Mic, MicOff, Hand, Share2, LogOut, Users, MoreHorizontal } from 'lucide-react';
-import { ROOMS, avatarColor } from '../utils/rooms';
+import { ROOMS, avatarColor, findRoom } from '../utils/rooms';
 import { useToast, shareOrCopy } from '../components/Toast';
 import { isBlocked } from '../utils/moderation';
 import ReportBlockSheet from '../components/ReportBlockSheet';
@@ -49,7 +49,7 @@ export default function Room() {
   const [showRoomMenu, setShowRoomMenu] = useState(false);
   const [blockVersion, setBlockVersion] = useState(0);
 
-  const room = ROOMS.find(r => r.id === id) || ROOMS[0];
+  const room = (id && findRoom(id)) || ROOMS[0];
   const listenerNames = ['Ava', 'Ben', 'Cleo', 'Dev'].filter(n => !isBlocked(n));
   const visibleSpeakers = room.speakers.filter(s => !isBlocked(s));
   const extraListeners = Math.max(room.listeners - listenerNames.length - visibleSpeakers.length - 2, 0);

@@ -2,6 +2,7 @@ export interface Room {
   id: string;
   name: string;
   topic: string;
+  category: 'Talk' | 'Music' | 'Business' | 'Stories';
   live: boolean;
   listeners: number;
   host: string;
@@ -15,6 +16,7 @@ export const ROOMS: Room[] = [
     id: 'open-talk',
     name: 'Open Talk',
     topic: "Let's talk about anything!",
+    category: 'Talk',
     live: true,
     listeners: 134,
     host: 'Aisha',
@@ -26,6 +28,7 @@ export const ROOMS: Room[] = [
     id: 'music-vibes',
     name: 'Music Vibes',
     topic: 'Share your favorite tunes',
+    category: 'Music',
     live: true,
     listeners: 86,
     host: 'Marcus',
@@ -37,6 +40,7 @@ export const ROOMS: Room[] = [
     id: 'hustle-hour',
     name: 'Hustle Hour',
     topic: 'Business, side hustles & the grind',
+    category: 'Business',
     live: true,
     listeners: 212,
     host: 'Devon',
@@ -47,6 +51,7 @@ export const ROOMS: Room[] = [
     id: 'late-night',
     name: 'Late Night Stories',
     topic: 'Real stories from around the world',
+    category: 'Stories',
     live: false,
     listeners: 0,
     host: 'Yuki',
@@ -54,6 +59,55 @@ export const ROOMS: Room[] = [
     color: '#e0447a',
   },
 ];
+
+const USER_ROOMS_KEY = 'speekzone_user_rooms';
+
+function readUserRooms(): Room[] {
+  try {
+    const raw = localStorage.getItem(USER_ROOMS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeUserRooms(rooms: Room[]) {
+  try {
+    localStorage.setItem(USER_ROOMS_KEY, JSON.stringify(rooms));
+  } catch {}
+}
+
+/** All rooms visible in the app: the seeded demo rooms plus any the user has actually created. */
+export function getAllRooms(): Room[] {
+  return [...readUserRooms(), ...ROOMS];
+}
+
+export function findRoom(id: string): Room | undefined {
+  return getAllRooms().find(r => r.id === id);
+}
+
+export function createRoom(params: {
+  name: string;
+  topic: string;
+  category: Room['category'];
+  host: string;
+  everyoneCanSpeak: boolean;
+}): Room {
+  const id = `${params.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${Date.now().toString(36)}`;
+  const room: Room = {
+    id,
+    name: params.name.trim(),
+    topic: params.topic.trim() || "Let's talk about anything!",
+    category: params.category,
+    live: true,
+    listeners: 1,
+    host: params.host,
+    speakers: params.everyoneCanSpeak ? [] : [params.host],
+    color: AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)],
+  };
+  writeUserRooms([room, ...readUserRooms()]);
+  return room;
+}
 
 export interface ChatItem {
   id: string;

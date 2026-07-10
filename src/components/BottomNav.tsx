@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Users, Plus, MessageCircle, User } from 'lucide-react';
 
 const TABS = [
-  { path: '/',         icon: Home,          label: 'Home'    },
+  { path: '/',         icon: Home,          label: 'For You' },
   { path: '/discover', icon: Users,         label: 'Rooms'   },
   { path: '/record',   icon: Plus,          label: ''        },
   { path: '/inbox',    icon: MessageCircle, label: 'Chats'   },

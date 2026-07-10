@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreHorizontal, MessageCircle, Users, LogOut, Trash2, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { ROOMS, avatarColor } from '../utils/rooms';
+import { getAllRooms, avatarColor } from '../utils/rooms';
 import { useToast, shareOrCopy } from '../components/Toast';
 import VerifiedBadge from '../components/VerifiedBadge';
+import { getFollowing } from '../utils/follows';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function Profile() {
 
   const displayName = user?.username || 'speaker';
   const handle = `@${displayName.toLowerCase()}.speaks`;
-  const liveRooms = ROOMS.filter(r => r.live);
+  const liveRooms = getAllRooms().filter(r => r.live);
 
   const handleShare = () => {
     shareOrCopy(
@@ -139,7 +140,7 @@ export default function Profile() {
           {[
             { label: 'Rooms', value: '128' },
             { label: 'Followers', value: '2.4K' },
-            { label: 'Following', value: '980' },
+            { label: 'Following', value: String(getFollowing().length) },
           ].map(s => (
             <div key={s.label} className="text-center">
               <div style={{ fontSize: 17, fontWeight: 900, color: '#0e1726' }}>{s.value}</div>
@@ -171,6 +172,21 @@ export default function Profile() {
             <MessageCircle size={19} color="#1e6ff2" />
           </button>
         </div>
+
+        {user?.plan === 'free' && (
+          <button
+            onClick={() => navigate('/pricing')}
+            className="flex items-center justify-center gap-2 rounded-2xl mt-3 w-full max-w-xs py-3"
+            style={{
+              background: 'linear-gradient(135deg,#16a34acc,#16a34a)',
+              boxShadow: '0 4px 16px rgba(22,163,74,.3)',
+              touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            <VerifiedBadge size={16} />
+            <span style={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>Get Verified — $9.99/mo</span>
+          </button>
+        )}
       </div>
 
       {/* Tabs */}

@@ -4,6 +4,7 @@ import { ChevronLeft, Users, Globe, Sparkles, Lock, LucideIcon } from 'lucide-re
 import { useToast } from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
 import { createRoom } from '../utils/rooms';
+import { createRoom as apiCreateRoom } from '../services/api';
 
 function Segmented<T extends string>({
   options, value, onChange,
@@ -48,21 +49,42 @@ export default function Record() {
   const [topic, setTopic] = useState('');
   const [roomType, setRoomType] = useState<'open' | 'social'>('open');
   const [whoSpeaks, setWhoSpeaks] = useState<'everyone' | 'invited'>('everyone');
+  const [creating, setCreating] = useState(false);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!name.trim()) {
       toast('Give your room a name first');
       return;
     }
-    const room = createRoom({
-      name,
-      topic,
-      category: roomType === 'social' ? 'Stories' : 'Talk',
-      host: user?.username || 'You',
-      everyoneCanSpeak: whoSpeaks === 'everyone',
-    });
-    toast(`"${room.name}" is live!`);
-    navigate(`/room/${room.id}`);
+    setCreating(true);
+    try {
+      // Real backend room — this is what actually goes live on Agora.
+      const { room: apiRoom, rtc } = await apiCreateRoom({
+        name,
+        topic,
+        category: roomType === 'social' ? 'Stories' : 'Talk',
+        mode: 'video',
+        maxGuests: 8,
+      });
+
+      // Mirror it into the local room list (id overridden to match) so
+      // Discover/Profile keep showing it until they're wired to the live API directly.
+      createRoom({
+        name,
+        topic,
+        category: roomType === 'social' ? 'Stories' : 'Talk',
+        host: user?.username || 'You',
+        everyoneCanSpeak: whoSpeaks === 'everyone',
+        id: apiRoom.roomId,
+      });
+
+      toast(`"${apiRoom.name}" is live!`);
+      navigate(`/room/${apiRoom.roomId}`, { state: { room: apiRoom, rtc, role: 'host' } });
+    } catch (err: any) {
+      toast(err?.message || 'Could not go live — try again');
+    } finally {
+      setCreating(false);
+    }
   };
 
   const inputStyle: React.CSSProperties = {
@@ -161,6 +183,7 @@ export default function Record() {
         {/* Create button */}
         <button
           onClick={handleCreate}
+          disabled={creating}
           className="w-full rounded-2xl mt-8"
           style={{
             background: '#1e6ff2',
@@ -169,11 +192,12 @@ export default function Record() {
             fontSize: 16,
             padding: '15px 0',
             boxShadow: '0 8px 20px rgba(30,111,242,.35)',
+            opacity: creating ? 0.6 : 1,
             touchAction: 'manipulation',
             WebkitTapHighlightColor: 'transparent',
           }}
         >
-          Create Room
+          {creating ? 'Going live…' : 'Create Room'}
         </button>
       </div>
     </div>

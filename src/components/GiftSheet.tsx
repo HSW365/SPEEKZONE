@@ -3,31 +3,56 @@ import { X, Coins } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { GIFTS, Gift } from '../utils/data';
 import { useToast } from './Toast';
+import { sendGift } from '../services/api';
 
 interface Props {
   open: boolean;
   onClose: () => void;
   username: string;
+  /** When provided (e.g. from a live Room), the gift is sent through the real
+   *  backend — sender coins are deducted server-side and the recipient's
+   *  diamond payout balance is credited. Without it (e.g. gifting a video
+   *  clip's creator, whose id isn't wired through yet), this falls back to
+   *  the original local-only behavior so existing call sites keep working. */
+  recipientId?: string;
+  roomId?: string;
   onSent?: (gift: Gift) => void;
 }
 
-export default function GiftSheet({ open, onClose, username, onSent }: Props) {
+export default function GiftSheet({ open, onClose, username, recipientId, roomId, onSent }: Props) {
   const { user, updateUser } = useAuth();
   const toast = useToast();
   const [sending, setSending] = useState<string | null>(null);
 
   if (!open) return null;
 
-  const handleSend = (gift: Gift) => {
+  const handleSend = async (gift: Gift) => {
     if (!user) return;
     if (user.coins < gift.coins) {
       toast(`Not enough coins — you need ${gift.coins}, you have ${user.coins}`);
       return;
     }
+
     setSending(gift.id);
-    updateUser({ coins: user.coins - gift.coins });
-    toast(`Sent ${gift.emoji} ${gift.name} to @${username}!`);
-    onSent?.(gift);
+
+    if (recipientId) {
+      try {
+        const result = await sendGift(gift.id, recipientId, roomId);
+        updateUser({ coins: result.senderCoins });
+        toast(`Sent ${gift.emoji} ${gift.name} to @${username}!`);
+        onSent?.(gift);
+      } catch (err: any) {
+        toast(err?.message || 'Could not send gift — try again');
+        setSending(null);
+        return;
+      }
+    } else {
+      // Legacy local-only path (clip gifting on Feed, not yet backend-wired).
+      updateUser({ coins: user.coins - gift.coins });
+      toast(`Sent ${gift.emoji} ${gift.name} to @${username}!`);
+      onSent?.(gift);
+    }
+
     setTimeout(() => { setSending(null); onClose(); }, 400);
   };
 

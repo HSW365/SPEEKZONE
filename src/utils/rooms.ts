@@ -92,8 +92,11 @@ export function createRoom(params: {
   category: Room['category'];
   host: string;
   everyoneCanSpeak: boolean;
+  /** Pass the real backend LiveRoom.roomId here so Discover/Profile listings
+   *  point at the actual live-streaming room instead of a local-only id. */
+  id?: string;
 }): Room {
-  const id = `${params.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${Date.now().toString(36)}`;
+  const id = params.id || `${params.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${Date.now().toString(36)}`;
   const room: Room = {
     id,
     name: params.name.trim(),

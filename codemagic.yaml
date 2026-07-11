@@ -17,6 +17,11 @@ workflows:
         XCODE_SCHEME: App
         APP_STORE_APP_ID: 6758737787
         APP_VERSION: 1.0.0
+        # Baked into the JS bundle at build time by Vite (import.meta.env.VITE_API_URL).
+        # Set this to your deployed server/ URL once it's live on Render/Railway —
+        # e.g. https://speekzone-api.onrender.com. Multi-guest video, gifting, and
+        # live chat all silently no-op against localhost until this points at prod.
+        VITE_API_URL: https://REPLACE_WITH_YOUR_DEPLOYED_SERVER_URL
 
       node: 18.19.0
       xcode: latest

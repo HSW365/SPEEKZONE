@@ -10,6 +10,7 @@ export interface User {
   following: number;
   totalLikes: number;
   coins: number;
+  diamonds?: number; // gift payout balance earned while live — separate from spendable coins
   plan: 'free' | 'verified';
 }
 

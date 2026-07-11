@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../utils/data';
 import { initPurchases } from '../utils/purchases';
+import { apiLogin, apiRegister, ApiUser, setToken } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -14,6 +15,24 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 const KEY = 'speekzone_v2_user';
+
+function apiUserToLocal(apiUser: ApiUser): User {
+  return {
+    id: apiUser.id,
+    name: apiUser.username,
+    username: apiUser.username,
+    email: apiUser.email,
+    avatar: apiUser.avatar,
+    bio: apiUser.bio,
+    verified: apiUser.verified,
+    followers: apiUser.followers,
+    following: apiUser.following,
+    totalLikes: 0,
+    coins: apiUser.coins,
+    diamonds: apiUser.diamonds,
+    plan: apiUser.plan === 'pro' || apiUser.plan === 'creator' ? 'verified' : 'free',
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -42,47 +61,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login = async (email: string, _password: string) => {
-    await new Promise(resolve => setTimeout(resolve, 600));
-
-    const loggedInUser: User = {
-      id: '1',
-      name: 'HOODSTAR365',
-      username: 'hoodstar365',
-      email,
-      bio: 'Founder of SpeekZone · AI Creator Network · HSW365Media',
-      verified: true,
-      followers: 124000,
-      following: 340,
-      totalLikes: 2400000,
-      coins: 5000,
-      plan: 'verified',
-    };
+  const login = async (email: string, password: string) => {
+    const { token, user: apiUser } = await apiLogin(email, password);
+    setToken(token);
+    const loggedInUser = apiUserToLocal(apiUser);
     persist(loggedInUser);
     await initPurchases(loggedInUser.id);
   };
 
-  const register = async (name: string, email: string, _password: string) => {
-    await new Promise(resolve => setTimeout(resolve, 600));
-
-    const newUser: User = {
-      id: Date.now().toString(),
-      name,
-      username: name.toLowerCase().replace(/\s+/g, ''),
-      email,
-      bio: 'New creator on SpeekZone',
-      verified: false,
-      followers: 0,
-      following: 0,
-      totalLikes: 0,
-      coins: 100,
-      plan: 'free',
-    };
+  const register = async (name: string, email: string, password: string) => {
+    const username = name.toLowerCase().replace(/\s+/g, '');
+    const { token, user: apiUser } = await apiRegister(username, email, password);
+    setToken(token);
+    const newUser = apiUserToLocal(apiUser);
     persist(newUser);
     await initPurchases(newUser.id);
   };
 
   const logout = () => {
+    setToken(null);
     persist(null);
   };
 
@@ -93,8 +90,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteAccount = async () => {
+    // TODO(Phase 2): call DELETE /api/auth/account on the server once account
+    // deletion is wired server-side (Guideline 5.1.1(v) requires it to actually
+    // remove the user's data, not just clear local state).
     await new Promise(resolve => setTimeout(resolve, 800));
-    // Clear all user data from storage
+    setToken(null);
     localStorage.removeItem(KEY);
     localStorage.removeItem('speekzone_posts');
     localStorage.removeItem('speekzone_likes');

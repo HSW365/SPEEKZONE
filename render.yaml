@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: speekzone-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: CLIENT_ORIGIN
+        value: capacitor://localhost,http://localhost:5173
+      - key: JWT_SECRET
+        generateValue: true
+      # Fill these three in during the Blueprint setup wizard — Render will
+      # prompt for each since no value/generateValue is given here.
+      - key: MONGO_URI
+      - key: LIVEKIT_API_KEY
+      - key: LIVEKIT_API_SECRET
+      - key: LIVEKIT_WS_URL

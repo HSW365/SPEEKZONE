@@ -21,6 +21,7 @@ export interface Clip {
   caption: string;
   audioUrl?: string;
   videoUrl?: string;
+  mediaType?: 'video' | 'image';
   waveform: number[];
   duration: number;
   likes: number;

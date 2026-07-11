@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Heart, MessageCircle, Share2, Gift as GiftIcon, Music, Play, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MOCK_CLIPS, Clip, Gift } from '../utils/data';
+import { getUserClips } from '../utils/userClips';
+import { getMediaObjectUrl } from '../utils/mediaStorage';
 import { useToast, shareOrCopy } from '../components/Toast';
 import { isBlocked } from '../utils/moderation';
 import { isFollowing, followUser, unfollowUser } from '../utils/follows';
@@ -17,7 +19,21 @@ function ClipCard({ clip, onBlocked, onFollowChanged }: { clip: Clip; onBlocked:
   const [likes, setLikes] = useState(clip.likes);
   const [gifts, setGifts] = useState(clip.gifts);
   const [commentCount, setCommentCount] = useState(clip.comments);
+  const [resolvedMediaUrl, setResolvedMediaUrl] = useState<string | null>(null);
   const following = isFollowing(clip.username);
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    if (clip.mediaType && clip.videoUrl) {
+      getMediaObjectUrl(clip.videoUrl).then(url => {
+        objectUrl = url;
+        setResolvedMediaUrl(url);
+      });
+    }
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [clip.id]);
   const toast = useToast();
 
   const fmt = (n: number) =>
@@ -60,15 +76,25 @@ function ClipCard({ clip, onBlocked, onFollowChanged }: { clip: Clip; onBlocked:
 
   return (
     <section className="relative w-full h-full flex-shrink-0 overflow-hidden bg-black">
-      {clip.videoUrl ? (
+      {clip.mediaType === 'video' && resolvedMediaUrl ? (
         <video
-          src={clip.videoUrl}
+          src={resolvedMediaUrl}
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
           muted
           loop
           playsInline
         />
+      ) : clip.mediaType === 'image' && resolvedMediaUrl ? (
+        <img
+          src={resolvedMediaUrl}
+          className="absolute inset-0 w-full h-full object-cover"
+          alt={clip.caption}
+        />
+      ) : clip.mediaType ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-black">
+          <span style={{ color: '#444', fontSize: 13 }}>Loading...</span>
+        </div>
       ) : (
         <div
           className="absolute inset-0"
@@ -292,7 +318,7 @@ export default function Feed() {
   const startX = useRef(0);
   const navigate = useNavigate();
 
-  const allClips = MOCK_CLIPS.filter(c => !isBlocked(c.username));
+  const allClips = [...getUserClips(), ...MOCK_CLIPS].filter(c => !isBlocked(c.username));
   const clips = feedTab === 'following'
     ? allClips.filter(c => isFollowing(c.username))
     : allClips;

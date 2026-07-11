@@ -4,7 +4,9 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import BottomNav from './components/BottomNav';
 import Feed from './pages/Feed';
 import Discover from './pages/Discover';
+import CreateChoice from './pages/CreateChoice';
 import Record from './pages/Record';
+import CreateClip from './pages/CreateClip';
 import Room from './pages/Room';
 import Inbox from './pages/Inbox';
 import ChatThread from './pages/ChatThread';
@@ -29,7 +31,9 @@ function AppInner() {
         <Routes>
           <Route path="/"         element={<Feed />} />
           <Route path="/discover" element={<Discover />} />
-          <Route path="/record"   element={<Record />} />
+          <Route path="/record"   element={<CreateChoice />} />
+          <Route path="/create/clip" element={<CreateClip />} />
+          <Route path="/create/room" element={<Record />} />
           <Route path="/room/:id" element={<Room />} />
           <Route path="/inbox"    element={<Inbox />} />
           <Route path="/inbox/:id" element={<ChatThread />} />

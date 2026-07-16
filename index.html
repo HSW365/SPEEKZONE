@@ -1,14 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>SpeekZone</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeekZone — Coming Soon</title>
+<meta name="description" content="SpeekZone is a new social video experience. Join the waitlist for early access.">
+<style>
+  :root{--bg:#0a0a0f;--cyan:#00e5ff;--violet:#a855f7;--red:#ff3b5c;--yellow:#ffd60a;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:#f4f4f6;font-family:'Inter',system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .wrap{max-width:520px;width:100%;text-align:center;}
+  h1{font-family:'Barlow Condensed',system-ui,sans-serif;font-size:56px;letter-spacing:1px;background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;}
+  p.tag{color:#b6b6c2;margin:16px 0 32px;font-size:16px;line-height:1.5;}
+  form{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  input[type=email]{flex:1;min-width:220px;padding:14px 16px;border-radius:8px;border:1px solid #2a2a35;background:#141420;color:#fff;font-size:15px;}
+  input[type=email]:focus{outline:2px solid var(--cyan);}
+  button{padding:14px 28px;border-radius:8px;border:none;background:var(--cyan);color:#0a0a0f;font-weight:700;font-size:15px;cursor:pointer;font-family:'Space Mono',monospace;}
+  button:hover{background:var(--violet);color:#fff;}
+  .msg{margin-top:16px;font-size:14px;font-family:'Space Mono',monospace;}
+  .msg.ok{color:var(--cyan);}
+  .msg.err{color:var(--red);}
+  footer{margin-top:48px;color:#5a5a68;font-size:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SPEEKZONE</h1>
+  <p class="tag">A new social video experience. Be first in line when we launch — join the waitlist below.</p>
+  <form id="waitlist-form">
+    <input type="email" id="email" placeholder="you@email.com" required>
+    <button type="submit">Notify Me</button>
+  </form>
+  <div class="msg" id="msg"></div>
+  <footer>SpeekZone &middot; a HOODSTAR ENT / HSW365Media product</footer>
+</div>
+<script>
+const SUPABASE_URL = "https://bflejslwnbmqspwiozzh.supabase.co";
+const SUPABASE_KEY = "sb_publishable_vD_6L-IKuI6T1vrt98gIqA_7swWptnt";
+
+document.getElementById('waitlist-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const msg = document.getElementById('msg');
+  msg.textContent = "Joining...";
+  msg.className = "msg";
+  try {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/subscribers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({ email: email, source: "speekzone" })
+    });
+    if (res.ok || res.status === 409) {
+      msg.textContent = "You're on the list. Talk soon.";
+      msg.className = "msg ok";
+      document.getElementById('email').value = "";
+    } else {
+      throw new Error("bad status " + res.status);
+    }
+  } catch(err) {
+    msg.textContent = "Something went wrong — try again.";
+    msg.className = "msg err";
+  }
+});
+</script>
+</body>
 </html>

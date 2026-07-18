@@ -6,8 +6,34 @@
 		"androidScheme": "https"
 	},
 	"ios": {
-		"contentInset": "always",
-		"scrollEnabled": false,
+		"contentInset": "never",
 		"backgroundColor": "#0a1628"
-	}
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 2000,
+			"backgroundColor": "#0a1628",
+			"showSpinner": false
+		},
+		"StatusBar": {
+			"style": "Dark",
+			"backgroundColor": "#0a1628"
+		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		}
+	},
+	"packageClassList": [
+		"AppPlugin",
+		"CAPCameraPlugin",
+		"HapticsPlugin",
+		"KeyboardPlugin",
+		"PushNotificationsPlugin",
+		"StatusBarPlugin",
+		"PurchasesPlugin"
+	]
 }

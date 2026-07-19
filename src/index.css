@@ -22,8 +22,8 @@ html, body, #root {
 .pt-safe  { padding-top: env(safe-area-inset-top, 44px); }
 .pb-safe  { padding-bottom: env(safe-area-inset-bottom, 34px); }
 
-.scroll-y {
-  overflow-y: auto;
+.scroll-y,
+.overflow-y-auto {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
 }

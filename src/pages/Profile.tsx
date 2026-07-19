@@ -42,7 +42,7 @@ export default function Profile() {
       {/* Top bar */}
       <div
         className="flex items-center justify-end px-4 relative"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 20px) + 8px)', paddingBottom: 4 }}
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 44px) + 8px)', paddingBottom: 4 }}
       >
         <button
           onClick={() => setMenuOpen(o => !o)}
@@ -59,7 +59,7 @@ export default function Profile() {
           <div
             className="absolute rounded-2xl overflow-hidden"
             style={{
-              top: 'calc(env(safe-area-inset-top, 20px) + 50px)',
+              top: 'calc(env(safe-area-inset-top, 44px) + 50px)',
               right: 16, zIndex: 50,
               background: '#fff',
               boxShadow: '0 8px 30px rgba(15,40,105,.18)',

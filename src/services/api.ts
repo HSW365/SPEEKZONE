@@ -6,7 +6,28 @@
  *
  * Falls back to localhost for local dev against `npm run dev` in /server.
  */
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const PROD_API_URL = 'https://speekzone-api.onrender.com';
+const DEV_API_URL = 'http://localhost:8080';
+const RAW_API_URL = import.meta.env.VITE_API_URL as string | undefined;
+
+// A production build must NEVER point at localhost or an unreplaced placeholder.
+// Doing so ships a dead app where registration/login silently fail on device —
+// exactly what got the App Store build rejected. If VITE_API_URL is missing or
+// bogus in a prod build, fall back to the real deployed API instead of localhost.
+const looksReal =
+  typeof RAW_API_URL === 'string' &&
+  /^https?:\/\//.test(RAW_API_URL) &&
+  !RAW_API_URL.includes('REPLACE_WITH');
+
+const API_URL = looksReal
+  ? (RAW_API_URL as string)
+  : import.meta.env.PROD
+    ? PROD_API_URL
+    : DEV_API_URL;
+
+if (!looksReal && import.meta.env.PROD) {
+  console.warn(`[SpeekZone] VITE_API_URL invalid ("${RAW_API_URL}") — falling back to ${PROD_API_URL}`);
+}
 
 const TOKEN_KEY = 'speekzone_token';
 

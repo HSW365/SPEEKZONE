@@ -70,14 +70,27 @@ Name: SpeekZone Verified
 Group Reference Name: speekzone_verified
 
 ## APP STORE REVIEW NOTES
-- This app is a live voice community / social networking app
-- Free to use — account creation required to post, follow, and join/host rooms
+- This app is a live voice community / social networking app.
+- Free to use — account creation required to post, follow, and join/host rooms.
 - The paid tier (Verified, $9.99/mo) only adds a profile checkmark and creator
   tools (analytics, Discover priority, custom banner, gift revenue share) —
-  it does not gate any core functionality
-- Test credentials: any email + any password logs in (demo auth for review purposes)
+  it does not gate any core functionality.
+
+- DEMO ACCOUNT (full access — pre-created on the live backend):
+    Email:    hsw365merch@gmail.com
+    Password: Doodee032@
+  This account is a real, seeded account in our production database and grants
+  full access to every feature. You may also create a NEW account in-app via
+  Sign Up (name + email + password of 8+ characters); registration completes
+  instantly against our live API.
+
+- Backend: accounts authenticate against our live API at
+  https://speekzone-api.onrender.com (real bcrypt + JWT auth, no demo/bypass
+  mode). The server is kept warm; if a first request is ever slow, retry once.
+
 - Subscription purchases use Apple In-App Purchase via RevenueCat (no external
-  payment links or processors)
-- In-app account deletion: Profile → menu icon (top right) → Delete Account
+  payment links or processors).
+- In-app account deletion: Profile → menu icon (top right) → Delete Account.
+- Support: https://speekzone.com/support   Privacy: https://speekzone.com/privacy
 - Content may include user-generated audio/video; creators are responsible for
-  their content
+  their content.

@@ -1,7 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { getToken } from './api';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+import { getToken, API_URL } from './api';
 
 let socket: Socket | null = null;
 

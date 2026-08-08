@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PLANS } from '../utils/data';
 import { purchasePlan, restorePurchases } from '../utils/purchases';
+import { isNative } from '../utils/platform';
 import { useToast } from '../components/Toast';
 import VerifiedBadge from '../components/VerifiedBadge';
 import { Check, ChevronLeft } from 'lucide-react';
@@ -14,6 +15,7 @@ export default function Pricing() {
   const [loading, setLoading] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
   const [success, setSuccess] = useState('');
+  const native = isNative();
 
   const handlePurchase = async (planId: string, appleProductId: string) => {
     setLoading(planId);
@@ -150,13 +152,17 @@ export default function Pricing() {
             className="mb-3"
             style={{ color: '#2196f3', fontSize: 13, fontWeight: 700 }}
           >
-            {restoring ? 'Restoring…' : 'Restore Purchases'}
+            {restoring ? (native ? 'Restoring…' : 'Opening…') : (native ? 'Restore Purchases' : 'Manage subscription')}
           </button>
-          <p className="mb-2">Payment charged to your Apple ID at confirmation. Subscriptions auto-renew unless cancelled 24 hours before period end.</p>
+          {native ? (
+            <p className="mb-2">Payment charged to your Apple ID at confirmation. Subscriptions auto-renew unless cancelled 24 hours before period end.</p>
+          ) : (
+            <p className="mb-2">Secure checkout by Stripe. The Verified subscription auto-renews monthly and can be cancelled anytime from your billing page.</p>
+          )}
           <p>
             <a href="https://speekzone.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#2196f3' }}>Privacy Policy</a>
             {' · '}
-            <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener noreferrer" style={{ color: '#2196f3' }}>Terms of Use</a>
+            <a href={native ? 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/' : 'https://speekzone.com/terms'} target="_blank" rel="noopener noreferrer" style={{ color: '#2196f3' }}>Terms of Use</a>
           </p>
         </div>
       </div>

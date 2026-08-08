@@ -19,7 +19,7 @@ const looksReal =
   /^https?:\/\//.test(RAW_API_URL) &&
   !RAW_API_URL.includes('REPLACE_WITH');
 
-const API_URL = looksReal
+export const API_URL = looksReal
   ? (RAW_API_URL as string)
   : import.meta.env.PROD
     ? PROD_API_URL

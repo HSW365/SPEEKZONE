@@ -1,4 +1,5 @@
 services:
+  # ── Live API (auth, rooms, gifts, LiveKit tokens, socket.io) ─────────
   - type: web
     name: speekzone-api
     runtime: node
@@ -9,13 +10,34 @@ services:
     envVars:
       - key: PORT
         value: 8080
+      # Allowed browser/native origins (comma-separated). Includes the web app.
       - key: CLIENT_ORIGIN
-        value: capacitor://localhost,http://localhost:5173
+        value: capacitor://localhost,http://localhost:5173,https://speekzone.com,https://www.speekzone.com,https://speekzone-web.onrender.com
       - key: JWT_SECRET
         generateValue: true
-      # Fill these three in during the Blueprint setup wizard — Render will
-      # prompt for each since no value/generateValue is given here.
+      # Fill these in during the Blueprint setup wizard.
       - key: MONGO_URI
       - key: LIVEKIT_API_KEY
       - key: LIVEKIT_API_SECRET
       - key: LIVEKIT_WS_URL
+
+  # ── Web app (Vite static build → no cold starts, no server) ──────────
+  - type: web
+    name: speekzone-web
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: VITE_API_URL
+        value: https://speekzone-api.onrender.com
+      # Public Stripe links — set real values in the dashboard (left blank here).
+      - key: VITE_STRIPE_VERIFIED_LINK
+        sync: false
+      - key: VITE_STRIPE_PORTAL_LINK
+        sync: false
+    routes:
+      # SPA fallback so client-side routes deep-link correctly.
+      - type: rewrite
+        source: /*
+        destination: /index.html

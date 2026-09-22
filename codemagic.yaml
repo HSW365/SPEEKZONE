@@ -19,9 +19,9 @@ workflows:
         APP_VERSION: "1.1"
         # Baked into the JS bundle at build time by Vite (import.meta.env.VITE_API_URL).
         # Set this to your deployed server/ URL once it's live on Render/Railway —
-        # e.g. https://speekzone-api.onrender.com. Multi-guest video, gifting, and
+        # e.g. https://speekzone.onrender.com. Multi-guest video, gifting, and
         # live chat all silently no-op against localhost until this points at prod.
-        VITE_API_URL: https://speekzone-api.onrender.com
+        VITE_API_URL: https://speekzone.onrender.com
 
       node: 18.19.0
       xcode: latest

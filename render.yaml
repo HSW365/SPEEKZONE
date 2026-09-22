@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: speekzone-api
+    name: speekzone
     runtime: node
     plan: free
     rootDir: server
@@ -10,7 +10,7 @@ services:
       - key: PORT
         value: 8080
       - key: CLIENT_ORIGIN
-        value: capacitor://localhost,http://localhost:5173
+        value: capacitor://localhost,http://localhost:5173,https://speekzone.onrender.com,https://hsw365.github.io
       - key: JWT_SECRET
         generateValue: true
       # Fill these three in during the Blueprint setup wizard — Render will

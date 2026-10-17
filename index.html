@@ -112,6 +112,10 @@ a.payopt:hover{border-color:var(--blue);background:var(--blueBg)}
 .payopt span{font-weight:700;font-size:15px}
 .payopt small{font-size:13px;color:var(--t2)}
 .mempay{margin-top:10px;width:100%}
+.paybig{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:100%;min-height:64px;border-radius:14px;font-weight:700;font-size:17px;color:#fff;text-decoration:none;margin-bottom:10px;cursor:pointer;border:0}
+.paybig small{font-size:13px;font-weight:500;opacity:.85}
+.paybig.cash{background:#00C244}.paybig.cash:hover{background:#00A83B}
+.paybig.zelle{background:#6D1ED4}.paybig.zelle:hover{background:#5A17B2}
 .mbd .btn-green{display:block;width:100%;height:48px;font-size:16px}
 
 .top{position:fixed;top:0;left:0;right:0;z-index:50;height:56px;background:var(--card);box-shadow:0 1px 2px rgba(0,0,0,.1);display:flex;align-items:center;padding:0 16px}
@@ -373,17 +377,10 @@ a.payopt:hover{border-color:var(--blue);background:var(--blueBg)}
 <div class="modal" id="payModal"><div class="mbox">
   <div class="mhd"><h2>Get Verified</h2><p>$9.99 a month. Keeps your account active and adds the verified check next to your name.</p><button class="x" data-close aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="mbd">
-    <div class="paystep"><b>1. Pay $9.99</b>
-      <a class="payopt" href="https://cash.app/$hsw365/9.99" target="_blank" rel="noopener"><span>Cash App</span><small>$hsw365 &middot; put your @tag in the note</small></a>
-      <div class="payopt" style="cursor:default"><span>Zelle</span><small>856-796-8081 &middot; put your @tag in the memo</small></div>
-    </div>
-    <form class="paystep" id="payForm" novalidate><b>2. Tell us you paid</b>
-      <select class="in" id="payMethod"><option value="cashapp">I paid with Cash App</option><option value="zelle">I paid with Zelle</option></select>
-      <input class="in" id="payRef" placeholder="Your $cashtag or the name on your Zelle" maxlength="120">
-      <div class="lerr" id="payErr"></div>
-      <button class="btn-green" id="payBtn" type="submit">I've paid</button>
-      <p class="terms">Your account stays open while we confirm your payment, usually the same day. Questions: hsw365media@gmail.com</p>
-    </form>
+    <a class="paybig cash" id="payCash" href="https://cash.app/$hsw365/9.99" target="_blank" rel="noopener"><span>Pay $9.99 with Cash App</span><small>$hsw365</small></a>
+    <button class="paybig zelle" id="payZelle" type="button"><span>Pay $9.99 with Zelle</span><small id="zelleNote">856-796-8081 &middot; tap to copy the number</small></button>
+    <div class="lerr" id="payErr"></div>
+    <p class="terms" style="text-align:center;margin-top:14px">Your account stays open while we confirm your payment, usually the same day.</p>
   </div>
 </div></div>
 
@@ -530,7 +527,7 @@ function rpc(fn,args){
     if(!r.ok){var e=new Error((j&&j.message)||"Something went wrong. Please try again.");e.code=j&&j.code;throw e}return j})});
 }
 function authFail(e){if(e&&e.code==="28000"&&S.token){logout(true);return true}if(e&&(e.code==="P0402"||/payment_required/.test(e.message||""))){openPay();return true}return false}
-function openPay(){if(!S.me)return;$("payErr").textContent="";$("payRef").value="";closeModals();openModal("payModal")}
+function openPay(){if(!S.me)return;$("payErr").textContent="";closeModals();openModal("payModal")}
 function busy(b,on,label){b.disabled=on;if(label)b.textContent=on?"Please wait...":label}
 
 function openModal(id){$(id).classList.add("show")}
@@ -603,13 +600,18 @@ function paintMe(){
   if(!m.active&&!m.pending&&!S.payShown){S.payShown=true;setTimeout(openPay,600)}
 }
 $("memPay").addEventListener("click",openPay);
-$("payForm").addEventListener("submit",function(e){
-  e.preventDefault();var er=$("payErr");er.textContent="";
-  var ref=$("payRef").value.trim();if(ref.length<2){er.textContent="Add your $cashtag or Zelle name so we can match your payment.";return $("payRef").focus()}
-  busy($("payBtn"),true,"I've paid");
-  rpc("sz_pay_claim",{p_token:S.token,p_method:$("payMethod").value,p_ref:ref}).then(function(p){
-    p.token=S.token;S.me=Object.assign(S.me,p);S.me.pending=true;paintMe();closeModals();toast("Thanks! We're confirming your payment.");
-  }).catch(function(x){if(!authFail(x))er.textContent=x.message}).then(function(){busy($("payBtn"),false,"I've paid")});
+var payClaimed=false;
+function claimPay(method){
+  if(payClaimed||!S.token)return;payClaimed=true;
+  rpc("sz_pay_claim",{p_token:S.token,p_method:method,p_ref:"@"+(S.me&&S.me.handle||"")}).then(function(p){
+    p.token=S.token;S.me=Object.assign(S.me,p);S.me.pending=true;paintMe();
+  }).catch(function(x){authFail(x)});
+}
+$("payCash").addEventListener("click",function(){claimPay("cashapp");setTimeout(function(){closeModals();toast("Thanks! Your account stays open while we confirm.")},400)});
+$("payZelle").addEventListener("click",function(){
+  try{navigator.clipboard.writeText("8567968081")}catch(e){}
+  $("zelleNote").textContent="Number copied. Send $9.99 to 856-796-8081 in your bank's Zelle.";
+  claimPay("zelle");
 });
 function logout(expired){
   var t=S.token;S.token=null;S.me=null;store(STORE,null);S.posts={};S.lists={feed:[],pfeed:[]};S.pending=[];

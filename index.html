@@ -80,6 +80,13 @@ svg{display:block;flex:none}
 .st.ok{color:var(--green)} .st.no{color:var(--red)}
 .terms{font-size:11px;color:var(--t2);line-height:1.4;margin:6px 0 14px}
 .terms a{color:var(--blue)}
+.paystep{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.paystep>b{font-size:15px}
+.payopt{display:flex;flex-direction:column;padding:12px 14px;border:1px solid #dddfe2;border-radius:8px;color:var(--t1);text-decoration:none;transition:border-color .15s,background .15s}
+a.payopt:hover{border-color:var(--blue);background:var(--blueBg)}
+.payopt span{font-weight:700;font-size:15px}
+.payopt small{font-size:13px;color:var(--t2)}
+.mempay{margin-top:10px;width:100%}
 .mbd .btn-green{display:block;margin:0 auto;width:194px;height:36px;font-size:18px}
 
 .top{position:fixed;top:0;left:0;right:0;z-index:50;height:56px;background:var(--card);box-shadow:0 1px 2px rgba(0,0,0,.1);display:flex;align-items:center;padding:0 16px}
@@ -310,7 +317,7 @@ svg{display:block;flex:none}
         <div class="hr"></div>
         <button class="btn-green" type="button" id="openSignup">Create new account</button>
       </form>
-      <p class="lnote"><b>Members only.</b> Free for your first 90 days.</p>
+      <p class="lnote"><b>Members only.</b> Free for your first 90 days, then $9.99 a month.</p>
     </div>
   </div></div>
   <footer class="lfoot"><div class="fi">
@@ -327,9 +334,27 @@ svg{display:block;flex:none}
     <input class="in" id="sEmail" type="email" placeholder="Email address" autocomplete="email" maxlength="254">
     <input class="in" id="sPass" type="password" placeholder="New password (8+ characters)" autocomplete="new-password">
     <div class="lerr" id="sErr"></div>
-    <p class="terms">By clicking Sign Up, you agree to our <a href="privacy/">Privacy Policy</a>. SpeekZone is free for your first 90 days. No card needed.</p>
+    <p class="terms">By clicking Sign Up, you agree to our <a href="privacy/">Privacy Policy</a>. SpeekZone is free for your first 90 days, then $9.99/month to stay active and verified. No card needed to start.</p>
     <button class="btn-green" id="sBtn" type="submit">Sign Up</button>
   </form>
+</div></div>
+
+<div class="modal" id="payModal"><div class="mbox">
+  <div class="mhd"><h2>Get Verified</h2><p>$9.99 a month. Keeps your account active and adds the verified check next to your name.</p><button class="x" data-close aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="mbd">
+    <div class="paystep"><b>1. Pay $9.99</b>
+      <a class="payopt" href="https://hsw365.co/cart/48114654347425:1" target="_blank" rel="noopener"><span>Card, Apple Pay or Google Pay</span><small>Secure checkout at hsw365.co</small></a>
+      <a class="payopt" href="https://cash.app/$hsw365/9.99" target="_blank" rel="noopener"><span>Cash App</span><small>$hsw365 &middot; put your @tag in the note</small></a>
+      <div class="payopt" style="cursor:default"><span>Zelle</span><small>856-796-8081 &middot; put your @tag in the memo</small></div>
+    </div>
+    <form class="paystep" id="payForm" novalidate><b>2. Tell us you paid</b>
+      <select class="in" id="payMethod"><option value="card">I paid by card</option><option value="cashapp">I paid with Cash App</option><option value="zelle">I paid with Zelle</option></select>
+      <input class="in" id="payRef" placeholder="Order number, your $cashtag, or Zelle name" maxlength="120">
+      <div class="lerr" id="payErr"></div>
+      <button class="btn-green" id="payBtn" type="submit">I've paid</button>
+      <p class="terms">Your account stays open while we confirm your payment, usually the same day. Questions: hsw365media@gmail.com</p>
+    </form>
+  </div>
 </div></div>
 
 <div id="app" class="hide">
@@ -393,7 +418,7 @@ svg{display:block;flex:none}
       </main>
 
       <aside class="rside">
-        <div class="memcard"><div class="t">Your membership</div><div class="b" id="memBig"></div><div class="bar"><i id="memBar"></i></div><div class="s" id="memSub"></div></div>
+        <div class="memcard"><div class="t">Your membership</div><div class="b" id="memBig"></div><div class="bar"><i id="memBar"></i></div><div class="s" id="memSub"></div><button class="btn-sm blue mempay hide" id="memPay">Get Verified &middot; $9.99/mo</button></div>
         <div class="shd"><span>Newest members</span><span style="font-size:13px;font-weight:400" id="memCount"></span></div>
         <div id="contacts"></div>
       </aside>
@@ -474,7 +499,8 @@ function rpc(fn,args){
   .then(function(r){return r.json().catch(function(){return null}).then(function(j){
     if(!r.ok){var e=new Error((j&&j.message)||"Something went wrong. Please try again.");e.code=j&&j.code;throw e}return j})});
 }
-function authFail(e){if(e&&e.code==="28000"&&S.token){logout(true);return true}return false}
+function authFail(e){if(e&&e.code==="28000"&&S.token){logout(true);return true}if(e&&(e.code==="P0402"||/payment_required/.test(e.message||""))){openPay();return true}return false}
+function openPay(){if(!S.me)return;$("payErr").textContent="";$("payRef").value="";closeModals();openModal("payModal")}
 function busy(b,on,label){b.disabled=on;if(label)b.textContent=on?"Please wait...":label}
 
 function openModal(id){$(id).classList.add("show")}
@@ -535,12 +561,26 @@ function paintMe(){
   ["topAv","ddAv","lsAv","cAv","cpAv"].forEach(function(id){paint($(id),m.handle,m.display_name)});
   $("ddName").textContent=nm;$("lsName").textContent=nm;$("cpName").textContent=nm;
   $("fakeIn").textContent="What's on your mind, "+first()+"?";$("cpText").placeholder="What's on your mind, "+first()+"?";
-  if(m.comp){$("memBig").textContent="Lifetime access";$("memBar").style.width="100%";$("memSub").textContent="Founder account. Every feature, free, forever.";$("ddPlan").textContent="Founder";$("ddPlanSub").textContent="Lifetime full access";return}
+  if(m.comp){$("memBig").textContent="Lifetime access";$("memBar").style.width="100%";$("memSub").textContent="Founder account. Every feature, free, forever.";$("ddPlan").textContent="Founder";$("ddPlanSub").textContent="Lifetime full access";$("memPay").classList.add("hide");return}
   var left=Math.max(0,new Date(m.free_until)-Date.now()),days=Math.ceil(left/864e5);
   $("memBig").textContent=days+" day"+(days===1?"":"s")+" free";$("memBar").style.width=Math.max(3,Math.min(100,left/(90*864e5)*100))+"%";
   $("memSub").textContent=days>0?"Free through "+longDate(m.free_until)+".":"Your free period has ended.";
   $("ddPlan").textContent="Founding member";$("ddPlanSub").textContent=days>0?days+" days of free access left":"Free period ended";
+  var paid=m.paid_until&&new Date(m.paid_until)>Date.now();
+  if(paid){$("memBig").textContent=m.verified?"Verified":"Active";$("memBar").style.width="100%";$("memSub").textContent=(m.pending?"Confirming your payment. Active through ":"Paid through ")+longDate(m.paid_until)+".";$("ddPlan").textContent=m.verified?"Verified member":"Member";$("ddPlanSub").textContent="Paid through "+longDate(m.paid_until)}
+  else if(days<=0){$("memSub").textContent=m.pending?"We're confirming your payment.":"Your free period has ended. Get Verified to keep posting."}
+  $("memPay").classList.toggle("hide",!!m.pending||(paid&&new Date(m.paid_until)-Date.now()>7*864e5));
+  if(!m.active&&!m.pending&&!S.payShown){S.payShown=true;setTimeout(openPay,600)}
 }
+$("memPay").addEventListener("click",openPay);
+$("payForm").addEventListener("submit",function(e){
+  e.preventDefault();var er=$("payErr");er.textContent="";
+  var ref=$("payRef").value.trim();if(ref.length<2){er.textContent="Add your order number, $cashtag or Zelle name so we can match your payment.";return $("payRef").focus()}
+  busy($("payBtn"),true,"I've paid");
+  rpc("sz_pay_claim",{p_token:S.token,p_method:$("payMethod").value,p_ref:ref}).then(function(p){
+    p.token=S.token;S.me=Object.assign(S.me,p);S.me.pending=true;paintMe();closeModals();toast("Thanks! We're confirming your payment.");
+  }).catch(function(x){if(!authFail(x))er.textContent=x.message}).then(function(){busy($("payBtn"),false,"I've paid")});
+});
 function logout(expired){
   var t=S.token;S.token=null;S.me=null;store(STORE,null);S.posts={};S.lists={feed:[],pfeed:[]};S.pending=[];
   $("feed").innerHTML="";$("pfeed").innerHTML="";closeModals();$("acctdd").classList.remove("show");setURL(null);

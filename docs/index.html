@@ -343,13 +343,12 @@ a.payopt:hover{border-color:var(--blue);background:var(--blueBg)}
   <div class="mhd"><h2>Get Verified</h2><p>$9.99 a month. Keeps your account active and adds the verified check next to your name.</p><button class="x" data-close aria-label="Close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="mbd">
     <div class="paystep"><b>1. Pay $9.99</b>
-      <a class="payopt" href="https://hsw365.co/cart/48114654347425:1" target="_blank" rel="noopener"><span>Card, Apple Pay or Google Pay</span><small>Secure checkout at hsw365.co</small></a>
       <a class="payopt" href="https://cash.app/$hsw365/9.99" target="_blank" rel="noopener"><span>Cash App</span><small>$hsw365 &middot; put your @tag in the note</small></a>
       <div class="payopt" style="cursor:default"><span>Zelle</span><small>856-796-8081 &middot; put your @tag in the memo</small></div>
     </div>
     <form class="paystep" id="payForm" novalidate><b>2. Tell us you paid</b>
-      <select class="in" id="payMethod"><option value="card">I paid by card</option><option value="cashapp">I paid with Cash App</option><option value="zelle">I paid with Zelle</option></select>
-      <input class="in" id="payRef" placeholder="Order number, your $cashtag, or Zelle name" maxlength="120">
+      <select class="in" id="payMethod"><option value="cashapp">I paid with Cash App</option><option value="zelle">I paid with Zelle</option></select>
+      <input class="in" id="payRef" placeholder="Your $cashtag or the name on your Zelle" maxlength="120">
       <div class="lerr" id="payErr"></div>
       <button class="btn-green" id="payBtn" type="submit">I've paid</button>
       <p class="terms">Your account stays open while we confirm your payment, usually the same day. Questions: hsw365media@gmail.com</p>
@@ -575,7 +574,7 @@ function paintMe(){
 $("memPay").addEventListener("click",openPay);
 $("payForm").addEventListener("submit",function(e){
   e.preventDefault();var er=$("payErr");er.textContent="";
-  var ref=$("payRef").value.trim();if(ref.length<2){er.textContent="Add your order number, $cashtag or Zelle name so we can match your payment.";return $("payRef").focus()}
+  var ref=$("payRef").value.trim();if(ref.length<2){er.textContent="Add your $cashtag or Zelle name so we can match your payment.";return $("payRef").focus()}
   busy($("payBtn"),true,"I've paid");
   rpc("sz_pay_claim",{p_token:S.token,p_method:$("payMethod").value,p_ref:ref}).then(function(p){
     p.token=S.token;S.me=Object.assign(S.me,p);S.me.pending=true;paintMe();closeModals();toast("Thanks! We're confirming your payment.");

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
-<title>SpeekZone · Swipe. Watch. Speak.</title>
+<title>SpeekZone · No algorithm. Just people.</title>
 <meta name="description" content="SpeekZone is the short video app built for real voices. Swipe through clips, post your own, follow the people you vibe with.">
 <meta property="og:title" content="SpeekZone">
 <meta property="og:description" content="Swipe. Watch. Speak. Short video for real voices.">
@@ -288,7 +288,7 @@ main{flex:1;position:relative;min-width:0;overflow:hidden}
     <div class="logo"><span class="mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13l11-6.5z"/></svg></span>Speek<b>Zone</b></div>
     <div class="lbody">
       <h1 class="lh">Swipe.<br>Watch.<br><em>Speak.</em></h1>
-      <p class="ltag">Short videos from real people. Post your clip, find your people, and say what you came to say.</p>
+      <p class="ltag">Short videos from real people. No algorithm, every post in order, newest first. Post your clip and say what you came to say.</p>
       <form class="lform" id="loginForm" novalidate>
         <input class="in" id="lEmail" type="email" placeholder="Email address" autocomplete="email" aria-label="Email address">
         <input class="in" id="lPass" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password">
@@ -327,7 +327,7 @@ main{flex:1;position:relative;min-width:0;overflow:hidden}
 <div id="app" class="hide">
   <aside class="side">
     <div class="logo"><span class="mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.5v13l11-6.5z"/></svg></span>Speek<b>Zone</b></div>
-    <button class="snav" data-go="home"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M10.6 3.6a2 2 0 0 1 2.8 0l7.4 7.2c.6.6.2 1.7-.7 1.7H19v6.8a1.7 1.7 0 0 1-1.7 1.7H15v-5.3a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1V21H6.7A1.7 1.7 0 0 1 5 19.3v-6.8h-1.1c-.9 0-1.3-1.1-.7-1.7z"/></svg>For You</button>
+    <button class="snav" data-go="home"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M10.6 3.6a2 2 0 0 1 2.8 0l7.4 7.2c.6.6.2 1.7-.7 1.7H19v6.8a1.7 1.7 0 0 1-1.7 1.7H15v-5.3a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1V21H6.7A1.7 1.7 0 0 1 5 19.3v-6.8h-1.1c-.9 0-1.3-1.1-.7-1.7z"/></svg>Latest</button>
     <button class="snav" data-go="following"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="8" r="4"/><path d="M1.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5c0 .6-.4 1-1 1h-13c-.6 0-1-.4-1-1z"/><path d="M17 4.2a4 4 0 0 1 0 7.6M19.5 14c1.9.9 3 2.9 3 5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Following</button>
     <button class="snav" data-go="discover"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Discover</button>
     <button class="snav" data-go="me"><div class="av" id="sAv" style="width:26px;height:26px;font-size:10px"></div>Profile</button>
@@ -338,7 +338,7 @@ main{flex:1;position:relative;min-width:0;overflow:hidden}
 
   <main>
     <section class="view" id="feedView">
-      <div class="ftabs" id="ftabs"><button data-mode="following">Following</button><button data-mode="foryou" class="on">For You</button></div>
+      <div class="ftabs" id="ftabs"><button data-mode="following">Following</button><button data-mode="foryou" class="on">Latest</button></div>
       <button class="fsearch" data-go="discover" aria-label="Search"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
       <div class="feed" id="feed"></div>
     </section>
@@ -357,7 +357,7 @@ main{flex:1;position:relative;min-width:0;overflow:hidden}
         <div id="dHome">
           <div class="sec">New on SpeekZone</div>
           <div class="chips" id="dPeople"></div>
-          <div class="sec">Trending now</div>
+          <div class="sec">Latest videos</div>
           <div class="grid" id="dGrid"></div>
         </div>
       </div>
@@ -582,8 +582,7 @@ function setMode(mode){
 function loadMore(el,key,handle){
   var st=S.feeds[key];if(!st||st.loading||st.done)return;st.loading=true;
   var args={p_token:S.token,p_limit:PAGE};
-  if(key==="following"){args.p_mode="following";args.p_offset=st.offset}
-  else{args.p_mode="foryou";args.p_seen=st.seen.length?st.seen:null}
+  args.p_mode=key==="following"?"following":"foryou";args.p_offset=st.offset;
   rpc("sz_vfeed",args).then(function(rows){
     if(el.dataset.key!==key||S.feeds[key]!==st)return;
     st.loading=false;rows=(rows||[]).filter(function(p){return st.seen.indexOf(p.id)<0});
@@ -840,7 +839,7 @@ function loadDiscover(){
   }).catch(authFail);
   $("dGrid").innerHTML='<div class="gempty"><div class="spin" style="margin:0 auto"></div></div>';
   rpc("sz_vfeed",{p_token:S.token,p_mode:"foryou",p_limit:30}).then(function(rows){rows=rows||[];rows.forEach(function(p){S.posts[p.id]=p});S.dList=rows.map(function(p){return p.id});
-    $("dGrid").innerHTML=rows.length?rows.map(cellHTML).join(""):'<div class="gempty"><h3>Nothing trending yet</h3><p>Be the one who starts it.</p></div>'}).catch(authFail);
+    $("dGrid").innerHTML=rows.length?rows.map(cellHTML).join(""):'<div class="gempty"><h3>No videos yet</h3><p>Be the one who starts it.</p></div>'}).catch(authFail);
 }
 var qT,qSeq=0;
 $("q").addEventListener("input",function(){

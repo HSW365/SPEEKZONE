@@ -296,31 +296,31 @@ main{flex:1;position:relative;min-width:0;overflow:hidden}
         <button class="btn v" id="lBtn" type="submit">Log in</button>
       </form>
       <div class="lalt">New here?</div>
-      <button class="btn g" type="button" id="openSignup" style="margin-top:14px">Create an account · Free for 90 days</button>
+      <button class="btn g" type="button" id="openSignup" style="margin-top:14px">Create an account · Free</button>
     </div>
     <footer class="lfoot"><a href="support/">Help</a><a href="privacy/">Privacy</a><a href="mailto:hsw365media@gmail.com">Contact</a><span>HSW365 Media LLC &copy; <span class="yr"></span></span></footer>
   </div>
 </div>
 
 <div class="modal" id="signupModal"><div class="mbox">
-  <div class="mhd"><div><h2>Sign up</h2><p>Free for 90 days. Takes 20 seconds.</p></div><button class="x" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="mhd"><div><h2>Sign up</h2><p>Free forever. Takes 20 seconds.</p></div><button class="x" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   <form class="mbd" id="signupForm" novalidate>
     <div class="row2"><input class="in" id="sFirst" placeholder="First name" autocomplete="given-name" maxlength="25"><input class="in" id="sLast" placeholder="Last name" autocomplete="family-name" maxlength="24"></div>
     <div class="tagwrap"><span class="at">@</span><input class="in" id="sTag" placeholder="username" autocomplete="username" maxlength="20" autocapitalize="off" spellcheck="false"><span class="st" id="tagSt"></span></div>
     <input class="in" id="sEmail" type="email" placeholder="Email address" autocomplete="email" maxlength="254">
     <input class="in" id="sPass" type="password" placeholder="Password (8+ characters)" autocomplete="new-password">
     <div class="lerr" id="sErr"></div>
-    <p class="fine">By signing up you agree to the <a href="privacy/" style="text-decoration:underline">Privacy Policy</a>. After 90 days, membership is $9.99/mo.</p>
+    <p class="fine">By signing up you agree to the <a href="privacy/" style="text-decoration:underline">Privacy Policy</a>. SpeekZone is free. Want the blue check? Get Verified any time for $9.99/mo.</p>
     <button class="btn v" id="sBtn" type="submit">Sign up</button>
   </form>
 </div></div>
 
 <div class="modal" id="payModal"><div class="mbox">
-  <div class="mhd"><div><h2>Get Verified</h2><p>$9.99/month keeps you posting, plus the blue check.</p></div><button class="x" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="mhd"><div><h2>Get Verified</h2><p>Get the blue check for $9.99/month.</p></div><button class="x" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   <div class="mbd">
     <a class="paybig cash" id="payCash" href="https://cash.app/$hsw365/9.99" target="_blank" rel="noopener"><span>Pay $9.99 with Cash App</span><small>$hsw365</small></a>
     <button class="paybig zelle" id="payZelle" type="button"><span>Pay $9.99 with Zelle</span><small id="zelleNote">856-796-8081 &middot; tap to copy the number</small></button>
-    <p class="fine">Your account stays open while we confirm the payment.</p>
+    <p class="fine">Your badge goes live once we confirm the payment.</p>
   </div>
 </div></div>
 
@@ -522,14 +522,13 @@ function claimPay(method){
   if(payClaimed||!S.token)return;payClaimed=true;
   rpc("sz_pay_claim",{p_token:S.token,p_method:method,p_ref:"@"+(S.me&&S.me.handle||"")}).then(function(p){S.me=Object.assign(S.me,p);S.me.pending=true}).catch(function(x){authFail(x)});
 }
-$("payCash").addEventListener("click",function(){claimPay("cashapp");setTimeout(function(){closeModals();toast("Thanks! Your account stays open while we confirm.")},400)});
+$("payCash").addEventListener("click",function(){claimPay("cashapp");setTimeout(function(){closeModals();toast("Thanks! Your blue check goes live once we confirm.")},400)});
 $("payZelle").addEventListener("click",function(){try{navigator.clipboard.writeText("8567968081")}catch(e){}$("zelleNote").textContent="Number copied. Send $9.99 to 856-796-8081 in your bank's Zelle.";claimPay("zelle")});
 function memHTML(){
   var m=S.me;if(!m)return"";
-  if(m.comp)return '<div class="memcard"><div class="t">Membership</div><div class="b">Founder · Lifetime</div><div class="bar"><i style="width:100%"></i></div><div class="s">Every feature, free, forever.</div></div>';
-  var paid=m.paid_until&&new Date(m.paid_until)>Date.now(),left=Math.max(0,new Date(m.free_until)-Date.now()),days=Math.ceil(left/864e5);
-  if(paid)return '<div class="memcard"><div class="t">Membership</div><div class="b">'+(m.verified?"Verified":"Active")+'</div><div class="bar"><i style="width:100%"></i></div><div class="s">'+(m.pending?"Confirming your payment. Active through ":"Paid through ")+esc(longDate(m.paid_until))+'.</div></div>';
-  return '<div class="memcard"><div class="t">Membership</div><div class="b">'+days+' day'+(days===1?"":"s")+' free</div><div class="bar"><i style="width:'+Math.max(3,Math.min(100,left/(90*864e5)*100))+'%"></i></div><div class="s">'+(m.pending?"We're confirming your payment.":days>0?"Free through "+esc(longDate(m.free_until))+".":"Your free period ended. Get Verified to keep posting.")+'</div>'+(m.pending?"":'<button class="btn v" data-pay>Get Verified · $9.99/mo</button>')+'</div>';
+  if(m.verified||m.comp)return '<div class="memcard"><div class="t">Status</div><div class="b">Verified '+VB+'</div><div class="s">'+(m.comp?"Founder account. Your blue check is permanent.":(m.paid_until?"Active through "+esc(longDate(m.paid_until))+".":"Your blue check is live."))+'</div></div>';
+  if(m.pending)return '<div class="memcard"><div class="t">Get Verified</div><div class="b">Confirming payment</div><div class="s">Your blue check goes live as soon as we confirm it.</div></div>';
+  return '<div class="memcard"><div class="t">Get Verified</div><div class="b">Get the blue check '+VB+'</div><div class="s">SpeekZone is free. Stand out with a verified badge on every video and comment.</div><button class="btn v" data-pay>Get Verified · $9.99/mo</button></div>';
 }
 
 /* session */
@@ -541,7 +540,6 @@ function enter(p,msg){
   var u=new URLSearchParams(location.search).get("u");
   if(u&&/^[A-Za-z0-9_]{3,20}$/.test(u))openProfile(u.toLowerCase());else route("home");
   if(msg)toast(msg);
-  if(p.active===false&&!p.pending)setTimeout(openPay,800);
 }
 function logout(expired){
   var t=S.token;S.token=null;S.me=null;store(STORE,null);S.posts={};S.feeds={};

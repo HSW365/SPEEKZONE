@@ -923,6 +923,8 @@ $("cPost").addEventListener("click",function(){
 var saved=load(STORE);
 if(saved){rpc("sz_me",{p_token:saved}).then(function(p){if(p){S.token=saved;enter(p)}else{store(STORE,null);$("landing").classList.remove("hide")}}).catch(function(){$("landing").classList.remove("hide")})}
 else $("landing").classList.remove("hide");
+/* ad QR / sign-up links: show the app, then open sign-up right on it */
+if(!saved&&(/[?&]signup/.test(location.search)||/^#(signup|join)$/.test(location.hash))){history.replaceState({},"",location.pathname);setTimeout(function(){if(!S.token)openSignup()},900)}
 })();
 </script>
 </body>

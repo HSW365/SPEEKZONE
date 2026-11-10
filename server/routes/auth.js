@@ -11,15 +11,18 @@ function signToken(user) {
   });
 }
 
+const OWNER_EMAILS = ["hsw365media@gmail.com", "hoodstarent365@gmail.com"];
+
 function publicUser(user) {
+  const isOwner = OWNER_EMAILS.includes(String(user.email || "").toLowerCase().trim());
   return {
     id: user._id,
     username: user.username,
     email: user.email,
     avatar: user.avatar,
     bio: user.bio,
-    verified: user.verified,
-    plan: user.plan,
+    verified: isOwner ? true : user.verified,
+    plan: isOwner ? 'pro' : user.plan,
     coins: user.coins,
     diamonds: user.diamonds,
     followers: user.followers,

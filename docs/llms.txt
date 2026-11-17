@@ -1,0 +1,10 @@
+# SpeekZone
+
+> Social video app with no algorithm. Just people.
+
+Built by HSW365 Media LLC (Elvin Torres Sr., Hoodstar365).
+
+## Pages
+- https://speekzone.com/
+- https://speekzone.com/privacy/
+- https://speekzone.com/support/
